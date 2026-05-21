@@ -1,20 +1,35 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# TabulaRaza
 
-# Run and deploy your AI Studio app
+TabulaRaza is a 100% client-side privacy actuator designed to streamline and automate GDPR/RODO Article 17 "Right to Erasure" requests targeting data brokers. 
 
-This contains everything you need to run your app locally.
+## Philosophy
 
-View your app in AI Studio: https://ai.studio/apps/c04116bc-ef57-4603-abd3-fe9799a7d613
+Data brokers continuously harvest, analyze, and sell personal information, often hiding behind opaque "legitimate interest" clauses. This creates systemic risks. Under the GDPR (and local equivalents like RODO in Poland), users have the fundamental right to demand any organization delete their personal data permanently.
 
-## Run Locally
+TabulaRaza provides a standardized framework to assert your right to be forgotten effortlessly.
 
-**Prerequisites:**  Node.js
+It features:
+- **Zero Tracking Architecture**: Client-side only. We do not track you, nor do we store your data on application servers.
+- **Local Storage Only**: Form data, settings, and authentications are stored safely in your browser via `localStorage`.
+- **Pre-Compiled Targets**: Comes with an open-source database of common data brokers, their contact DPOs, and mailing addresses.
+- **Direct Mailto Execution**: Assembles a legal directive on your machine and pushes it securely to your native email client.
 
+## Technologies Used
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- **React 19**
+- **Vite 6**
+- **Tailwind CSS v4**
+- **Zustand** (Local store)
+- **Framer Motion** (Micro-interactions)
+
+## Development Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Start local server
+npm run dev
+```
+
+For AI agents modifying this project, please consult `AGENTS.md` for strict architectural guidelines.

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { SchemaOrganization, SchemaPerson } from '../types';
 import { Send, Copy, CheckCircle2, UserCircle2 } from 'lucide-react';
+import { getTranslation } from '../locales';
 
 interface ComposerProps {
   broker: SchemaOrganization | null;
@@ -23,12 +24,14 @@ export function Composer({ broker, profile }: ComposerProps) {
   const activeFullName = `${activeFirstName} ${activeLastName}`.trim();
   const activeEmail = autoFillEnabled ? profile.email : "[Your Email]";
   
+  const t = getTranslation(profile.preferences.language);
+  
   useEffect(() => {
-    let t: any;
+    let timeoutId: any;
     if (copied) {
-      t = setTimeout(() => setCopied(false), 2000);
+      timeoutId = setTimeout(() => setCopied(false), 2000);
     }
-    return () => clearTimeout(t);
+    return () => clearTimeout(timeoutId);
   }, [copied]);
 
   if (!broker) {
@@ -37,22 +40,27 @@ export function Composer({ broker, profile }: ComposerProps) {
         <div className="w-16 h-16 rounded-full border border-[var(--color-brand-element)] flex items-center justify-center mb-4 text-[var(--color-brand-primary)]/50">
            <Send size={24} />
         </div>
-        <h3 className="text-lg font-mono text-[var(--color-brand-primary)] uppercase tracking-widest mb-2">Awaiting Target</h3>
-        <p className="text-sm font-mono opacity-60 max-w-sm mx-auto">Select a data broker entity from the catalog to initialize the erasure protocol sequence.</p>
+        <h3 className="text-lg font-mono text-[var(--color-brand-primary)]/70 uppercase tracking-widest mb-2">{t.composer.awaitingTarget}</h3>
+        <p className="text-sm font-mono text-[var(--color-brand-primary)]/50 max-w-sm mx-auto">{t.composer.selectTargetPrompt}</p>
       </div>
     );
   }
 
-  const subject = `Opt-Out Request: ${broker.name}`;
-  const body = `Dear ${broker.contactPoint.name},
+  const subject = t.composer.subjectLine.replace('{name}', broker.name);
+  const body = `${t.composer.greeting.replace('{name}', broker.contactPoint.name)}
 
-I am writing to formally request the deletion of all my personal data from your systems in accordance with Article 17 of the GDPR (Right to Erasure).
+${t.composer.body1.replace('{name}', broker.name)}
 
-Please confirm receipt of this request and provide a timeline for completion as required under GDPR regulations (within 30 days).
+${t.composer.body2}
 
-Thank you for your prompt attention to this matter.
+${t.composer.body3}
 
-Best regards,
+${t.composer.body4}
+
+${t.composer.body5}
+
+${t.composer.signOff}
+
 ${activeFullName || '[Your Name]'}
 ${activeEmail}`;
 
@@ -72,7 +80,7 @@ ${activeEmail}`;
       <div className="bg-[var(--color-brand-dark)] border-b border-[var(--color-brand-element)] p-4 flex items-center justify-between">
          <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-brand-glow)] shadow-[0_0_8px_rgba(82,209,184,0.8)] animate-pulse" />
-            <h2 className="text-sm font-mono tracking-widest uppercase text-[var(--color-brand-glow)]">Protocol Active</h2>
+            <h2 className="text-sm font-mono tracking-widest uppercase text-[var(--color-brand-glow)]">{t.composer.protocolActive}</h2>
          </div>
       </div>
 
@@ -80,13 +88,13 @@ ${activeEmail}`;
         {!autoFillEnabled && (
           <div className="mb-6 p-4 border border-[var(--color-brand-element)] rounded-lg bg-[var(--color-brand-dark)] space-y-4">
              <div className="flex items-center gap-2 text-sm font-mono text-[var(--color-brand-primary)] uppercase">
-                <UserCircle2 size={16} /> Guest Mode: Manual Input required
+                <UserCircle2 size={16} /> {t.composer.guestMode}
              </div>
              <div className="grid grid-cols-2 gap-4">
                <div>
                  <input 
                    type="text" 
-                   placeholder="First Name" 
+                   placeholder={t.composer.firstName} 
                    value={manualFirstName}
                    onChange={(e) => setManualFirstName(e.target.value)}
                    className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
@@ -95,7 +103,7 @@ ${activeEmail}`;
                <div>
                  <input 
                    type="text" 
-                   placeholder="Last Name" 
+                   placeholder={t.composer.lastName}
                    value={manualLastName}
                    onChange={(e) => setManualLastName(e.target.value)}
                    className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
@@ -109,22 +117,22 @@ ${activeEmail}`;
           <div className="mb-6 p-4 border border-dashed border-[var(--color-brand-primary)]/50 rounded-lg bg-[var(--color-brand-primary)]/5 flex items-center gap-3">
              <CheckCircle2 size={18} className="text-[var(--color-brand-primary)]" />
              <div className="text-sm font-mono opacity-80">
-                <span className="text-[var(--color-brand-primary)]">Auto-fill active</span> using Identity Module: {activeFullName}
+                <span className="text-[var(--color-brand-primary)]">{t.composer.autoFillActive}</span> {t.composer.usingIdentityModule} {activeFullName}
              </div>
           </div>
         )}
 
         <div className="space-y-4 font-mono text-sm">
           <div className="space-y-1">
-             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">TO:</span>
+             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.to}</span>
              <div className="bg-[var(--color-brand-dark)] p-2 rounded border border-[var(--color-brand-element)]">{broker.email}</div>
           </div>
           <div className="space-y-1">
-             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">SUBJECT:</span>
+             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.subject}</span>
              <div className="bg-[var(--color-brand-dark)] p-2 rounded border border-[var(--color-brand-element)]">{subject}</div>
           </div>
           <div className="space-y-1">
-             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">PAYLOAD:</span>
+             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.payload}</span>
              <div className="bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 h-[280px] overflow-y-auto">
                 {body}
              </div>
@@ -135,17 +143,17 @@ ${activeEmail}`;
       <div className="border-t border-[var(--color-brand-element)] p-4 bg-[var(--color-brand-dark)] flex items-center justify-end gap-3 z-10">
          <button 
            onClick={handleCopy}
-           className="px-5 py-2.5 rounded bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] hover:border-[var(--color-brand-primary)] text-sm font-mono uppercase tracking-widest text-[var(--color-brand-primary)] transition-all flex items-center gap-2"
+           className="px-5 py-2.5 rounded bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] hover:border-[var(--color-brand-primary)] text-sm font-mono uppercase tracking-widest text-[var(--color-brand-primary)] transition-all flex items-center gap-2 cursor-pointer"
          >
            {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
-           {copied ? "Copied" : "Copy Raw"}
+           {copied ? t.composer.copied : t.composer.copyRaw}
          </button>
          <a 
            href={mailtoLink}
-           className="px-6 py-2.5 rounded bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-glow)] shadow-[0_0_15px_rgba(22,137,115,0.4)] text-sm font-bold font-mono uppercase tracking-widest transition-all focus:outline-none flex items-center gap-2"
+           className="px-6 py-2.5 rounded bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-glow)] shadow-[0_0_15px_rgba(22,137,115,0.4)] text-sm font-bold font-mono uppercase tracking-widest transition-all focus:outline-none flex items-center gap-2 cursor-pointer"
          >
            <Send size={16} className="-mt-0.5" />
-           Execute Mailto
+           {t.composer.executeMailto}
          </a>
       </div>
     </div>

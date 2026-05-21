@@ -12,6 +12,7 @@ export interface SchemaOrganization {
   name: string;
   email: string;
   url: string;
+  address?: string[];
   contactPoint: ContactPoint;
 }
 
@@ -31,5 +32,6 @@ export interface SchemaPerson {
   preferences: {
     autoFillSignature: boolean;
     manualSignature?: string;
+    language?: "en" | "pl";
   };
 }
