@@ -75,5 +75,23 @@ export default {
     attachSignature: "Attach cryptographic key signature if available.",
     cancel: "Cancel",
     applyChanges: "Apply Changes",
+  },
+  brokers: {
+    contactTypes: {
+      "legal compliance": "legal compliance",
+      "customer service": "customer service",
+      "data controller": "data controller"
+    },
+    roles: {
+      "Privacy Officer": "Privacy Officer",
+      "Data Protection Officer": "Data Protection Officer",
+      "GDPR Compliance Team": "GDPR Compliance Team",
+      "Data Privacy Operations": "Data Privacy Operations",
+      "Inspektor Ochrony Danych": "Data Protection Inspector",
+      "Compliance Team": "Compliance Team",
+      "Privacy Compliance": "Privacy Compliance",
+      "GDPR Desk": "GDPR Desk",
+      "Compliance Officer": "Compliance Officer"
+    }
   }
 };

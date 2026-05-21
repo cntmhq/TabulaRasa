@@ -46,7 +46,7 @@ export function BrokerCard({ broker, isSelected, onSelect, t }: BrokerCardProps)
             {broker.name}
           </h3>
           <p className="text-xs font-mono text-[var(--color-brand-primary)]/70 truncate flex items-center gap-1.5 mb-3">
-             <Shield size={12} /> {broker.contactPoint.contactType}
+             <Shield size={12} /> {t?.brokers?.contactTypes[broker.contactPoint.contactType as keyof typeof t.brokers.contactTypes] || broker.contactPoint.contactType}
           </p>
           {broker.address && broker.address.length > 0 && (
             <div className="text-[10px] font-mono text-white/40 flex items-start gap-1.5">

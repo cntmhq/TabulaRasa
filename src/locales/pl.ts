@@ -75,5 +75,23 @@ export default {
     attachSignature: "Dołącz kryptograficzny podpis (jeśli dostępny).",
     cancel: "Anuluj",
     applyChanges: "Zastosuj Zmiany",
+  },
+  brokers: {
+    contactTypes: {
+      "legal compliance": "zgodność i sprawy prawne",
+      "customer service": "obsługa klienta",
+      "data controller": "administrator danych"
+    },
+    roles: {
+      "Privacy Officer": "Inspektor ds. Prywatności",
+      "Data Protection Officer": "Inspektor Ochrony Danych",
+      "GDPR Compliance Team": "Zespół ds. Zgodności z RODO",
+      "Data Privacy Operations": "Dział Prywatności Danych",
+      "Inspektor Ochrony Danych": "Inspektor Ochrony Danych",
+      "Compliance Team": "Zespół ds. Zgodności",
+      "Privacy Compliance": "Dział Zgodności Prywatności",
+      "GDPR Desk": "Biuro ds. RODO",
+      "Compliance Officer": "Kierownik ds. Zgodności"
+    }
   }
 };

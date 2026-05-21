@@ -47,7 +47,9 @@ export function Composer({ broker, profile }: ComposerProps) {
   }
 
   const subject = t.composer.subjectLine.replace('{name}', broker.name);
-  const body = `${t.composer.greeting.replace('{name}', broker.contactPoint.name)}
+  const translatedContactName = t.brokers?.roles[broker.contactPoint.name as keyof typeof t.brokers.roles] || broker.contactPoint.name;
+  
+  const body = `${t.composer.greeting.replace('{name}', translatedContactName)}
 
 ${t.composer.body1.replace('{name}', broker.name)}
 
