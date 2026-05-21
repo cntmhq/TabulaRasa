@@ -1,6 +1,0 @@
-{
-  "name": "TabulaRaza",
-  "description": "GDPR/RODO opt-out email generator PWA built with Google Auth integration and Schema.org compliance.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
