@@ -93,7 +93,7 @@ ${activeEmail}`;
          </div>
       </div>
 
-      <div className="p-6 overflow-y-auto flex-1">
+      <div className="p-6 overflow-y-auto flex-1 flex flex-col">
         {!autoFillEnabled && (
           <div className="mb-6 p-4 border border-[var(--color-brand-element)] rounded-lg bg-[var(--color-brand-dark)] space-y-4">
              <div className="flex items-center gap-2 text-sm font-mono text-[var(--color-brand-primary)] uppercase">
@@ -131,21 +131,21 @@ ${activeEmail}`;
           </div>
         )}
 
-        <div className="space-y-4 font-mono text-sm">
-          <div className="space-y-1">
+        <div className="space-y-4 font-mono text-sm flex flex-col flex-1 min-h-0">
+          <div className="space-y-1 shrink-0">
              <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.to}</span>
              <div className="bg-[var(--color-brand-dark)] p-2 rounded border border-[var(--color-brand-element)]">{broker.email}</div>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 shrink-0">
              <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.subject}</span>
              <div className="bg-[var(--color-brand-dark)] p-2 rounded border border-[var(--color-brand-element)]">{subject}</div>
           </div>
-          <div className="space-y-1">
-             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.payload}</span>
-             <textarea 
+          <div className="space-y-1 flex flex-col flex-1 min-h-0">
+             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs shrink-0">{t.composer.payload}</span>
+             <textarea
                value={bodyToUse}
                onChange={(e) => setCustomBody(e.target.value)}
-               className="w-full bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 h-[280px] overflow-y-auto focus:border-[var(--color-brand-primary)] focus:outline-none transition-colors resize-none font-mono text-sm"
+               className="flex-1 w-full bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 min-h-[120px] sm:min-h-[280px] overflow-y-auto focus:border-[var(--color-brand-primary)] focus:outline-none transition-colors resize-none font-mono text-sm"
                spellCheck={false}
              />
           </div>
