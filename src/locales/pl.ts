@@ -7,7 +7,7 @@ export default {
     directoryList: "Lista Katalogowa",
     found: "Znaleziono",
     tabulaRazaInitiative: "Inicjatywa TabulaRaza",
-    initiativeDesc: "Otwartoźródłowy system egzekwowania prywatności. Stworzony na licencji MIT.",
+    initiativeDesc: "Osobisty system egzekwowania prywatności. Stworzony na licencji MIT.",
     selectTarget: "Wybierz cel z katalogu, aby wygenerować wniosek o usunięcie danych zgodny z Art. 17 RODO. Upewnij się, że sprawdziłeś treść przed wysłaniem.",
     tldr: {
       problemTitle: "Problem",

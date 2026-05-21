@@ -145,7 +145,7 @@ ${activeEmail}`;
              <textarea 
                value={bodyToUse}
                onChange={(e) => setCustomBody(e.target.value)}
-               className="w-full bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 h-[280px] overflow-y-auto focus:border-[var(--color-brand-primary)] focus:outline-none transition-colors resize-y font-mono text-sm"
+               className="w-full bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 h-[280px] overflow-y-auto focus:border-[var(--color-brand-primary)] focus:outline-none transition-colors resize-none font-mono text-sm"
                spellCheck={false}
              />
           </div>
