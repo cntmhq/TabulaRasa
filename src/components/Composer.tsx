@@ -17,6 +17,7 @@ export function Composer({ broker, profile }: ComposerProps) {
   const [manualLastName, setManualLastName] = useState('');
 
   const [copied, setCopied] = useState(false);
+  const [customBody, setCustomBody] = useState<string | null>(null);
 
   // Derived info based on auth and preferences
   const activeFirstName = autoFillEnabled ? profile.givenName : manualFirstName;
@@ -34,6 +35,10 @@ export function Composer({ broker, profile }: ComposerProps) {
     return () => clearTimeout(timeoutId);
   }, [copied]);
 
+  useEffect(() => {
+    setCustomBody(null);
+  }, [broker?.identifier, profile.preferences.language]);
+
   if (!broker) {
     return (
       <div className="h-full min-h-[400px] border border-[var(--color-brand-element)] border-dashed rounded-xl flex flex-col items-center justify-center text-center p-8 bg-[var(--color-brand-dark)]/50">
@@ -49,7 +54,7 @@ export function Composer({ broker, profile }: ComposerProps) {
   const subject = t.composer.subjectLine.replace('{name}', broker.name);
   const translatedContactName = t.brokers?.roles[broker.contactPoint.name as keyof typeof t.brokers.roles] || broker.contactPoint.name;
   
-  const body = `${t.composer.greeting.replace('{name}', translatedContactName)}
+  const defaultBody = `${t.composer.greeting.replace('{name}', translatedContactName)}
 
 ${t.composer.body1.replace('{name}', broker.name)}
 
@@ -66,11 +71,13 @@ ${t.composer.signOff}
 ${activeFullName || '[Your Name]'}
 ${activeEmail}`;
 
-  const mailtoLink = `mailto:${broker.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const bodyToUse = customBody !== null ? customBody : defaultBody;
+
+  const mailtoLink = `mailto:${broker.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyToUse)}`;
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(body);
+      await navigator.clipboard.writeText(bodyToUse);
       setCopied(true);
     } catch (err) {
       console.error("Clipboard access failed", err);
@@ -135,9 +142,12 @@ ${activeEmail}`;
           </div>
           <div className="space-y-1">
              <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.payload}</span>
-             <div className="bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 h-[280px] overflow-y-auto">
-                {body}
-             </div>
+             <textarea 
+               value={bodyToUse}
+               onChange={(e) => setCustomBody(e.target.value)}
+               className="w-full bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 h-[280px] overflow-y-auto focus:border-[var(--color-brand-primary)] focus:outline-none transition-colors resize-y font-mono text-sm"
+               spellCheck={false}
+             />
           </div>
         </div>
       </div>
