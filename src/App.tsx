@@ -43,10 +43,10 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      <main className="flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10 flex flex-col-reverse md:flex-row gap-4 sm:gap-8 md:overflow-hidden overflow-y-auto">
+      <main className="flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10 flex flex-col md:flex-row gap-4 sm:gap-8 md:overflow-hidden overflow-y-auto overflow-x-hidden">
 
         {/* Left Column: Catalog or Modals */}
-        <section id="directory-section" className="flex-1 md:flex-none md:w-1/3 flex flex-col min-h-0 mb-2 md:mb-0 md:min-h-0 min-h-[100dvh] scroll-mt-4">
+        <section id="directory-section" className="order-2 md:order-1 flex-1 md:flex-none md:w-1/3 flex flex-col min-h-0 mb-2 md:mb-0 md:min-h-0 min-h-[100dvh] scroll-mt-4">
           <div className="flex items-center gap-3 mb-4 sm:mb-6 shrink-0">
             <h2 className="text-xl font-mono uppercase tracking-widest text-[var(--color-brand-glow)] truncate">{getLeftTitle()}</h2>
             <div className="h-px bg-gradient-to-r from-[var(--color-brand-element)] to-transparent flex-1" />
@@ -125,7 +125,7 @@ export default function App() {
         </section>
 
         {/* Right Column: Actuator/Composer */}
-        <section className="flex-[1.5] flex flex-col min-h-0 md:min-h-0 min-h-[100dvh]">
+        <section className="order-1 md:order-2 flex-[1.5] flex flex-col min-h-0 md:min-h-0 min-h-[100dvh]">
           <Composer 
             broker={selectedBroker} 
             profile={profile} 
