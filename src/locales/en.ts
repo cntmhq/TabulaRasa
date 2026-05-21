@@ -6,7 +6,7 @@ export default {
     systemInformation: "System Information",
     directoryList: "Directory List",
     found: "Found",
-    tabulaRazaInitiative: "TabulaRaza Initiative",
+    tabulaRasaInitiative: "TabulaRasa Initiative",
     initiativeDesc: "Open-source privacy enforcement framework. Engineered under MIT License.",
     selectTarget: "Select a target from the directory to construct a compliant GDPR Article 17 erasure request. Ensure you review the payload before sending.",
     tldr: {
@@ -15,15 +15,15 @@ export default {
       rightsTitle: "Your Rights (GDPR/RODO)",
       rightsDesc: "Under the General Data Protection Regulation (GDPR) and its local equivalents like the Polish RODO, you have the fundamental Right to Erasure (Article 17). You have the explicit right to demand any organization to delete your personal data permanently.",
       obligationTitle: "The Obligation",
-      obligationDesc: "Data controllers are legally obligated to comply with your erasure request within 30 days unless very specific, rare exemptions apply. TabulaRaza simplifies this process by providing a standardized, structured framework to assert your right to be forgotten effortlessly.",
+      obligationDesc: "Data controllers are legally obligated to comply with your erasure request within 30 days unless very specific, rare exemptions apply. TabulaRasa simplifies this process by providing a standardized, structured framework to assert your right to be forgotten effortlessly.",
     },
     policy: {
       trackingTitle: "Zero Tracking Architecture",
-      trackingDesc: "TabulaRaza is a 100% client-side privacy actuator. We do not track you, we do not store your data on our application servers, and we do not deploy invasive analytical cookies.",
+      trackingDesc: "TabulaRasa is a 100% client-side privacy actuator. We do not track you, we do not store your data on our application servers, and we do not deploy invasive analytical cookies.",
       storageTitle: "Local Storage Only",
       storageDesc: "Authentication state, operational preferences, and identity modules are stored strictly within your browser's local secure storage mechanism (localStorage).",
       liabilityTitle: "Execution & Liability",
-      liabilityDesc: "Any communication initiated through this interface is assembled locally and sent directly from your mail client to the respective data controller. TabulaRaza functions solely as a template compiler and reference matrix. By utilizing this framework, you agree that you are personally responsible for the requests you dispatch."
+      liabilityDesc: "Any communication initiated through this interface is assembled locally and sent directly from your mail client to the respective data controller. TabulaRasa functions solely as a template compiler and reference matrix. By utilizing this framework, you agree that you are personally responsible for the requests you dispatch."
     }
   },
   auth: {
@@ -43,6 +43,7 @@ export default {
     reviewPayload: "Review generated payload before dispatch",
     awaitingTarget: "Awaiting Target",
     selectTargetPrompt: "Select a data broker entity from the catalog to initialize the erasure protocol sequence.",
+    scrollToDirectory: "Scroll down to the directory",
     protocolActive: "Protocol Active",
     guestMode: "Guest Mode: Manual Input required",
     firstName: "First Name",

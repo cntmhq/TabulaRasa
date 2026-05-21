@@ -43,10 +43,10 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      <main className="flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10 flex flex-col md:flex-row gap-4 sm:gap-8 md:overflow-hidden overflow-y-auto">
+      <main className="flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10 flex flex-col-reverse md:flex-row gap-4 sm:gap-8 md:overflow-hidden overflow-y-auto">
 
         {/* Left Column: Catalog or Modals */}
-        <section className="flex-1 md:flex-none md:w-1/3 flex flex-col min-h-0 mb-2 md:mb-0 md:min-h-0 min-h-[100dvh]">
+        <section id="directory-section" className="flex-1 md:flex-none md:w-1/3 flex flex-col min-h-0 mb-2 md:mb-0 md:min-h-0 min-h-[100dvh] scroll-mt-4">
           <div className="flex items-center gap-3 mb-4 sm:mb-6 shrink-0">
             <h2 className="text-xl font-mono uppercase tracking-widest text-[var(--color-brand-glow)] truncate">{getLeftTitle()}</h2>
             <div className="h-px bg-gradient-to-r from-[var(--color-brand-element)] to-transparent flex-1" />
@@ -114,9 +114,9 @@ export default function App() {
                        <p>{t.app.selectTarget}</p>
                     ) : (
                        <>
-                          <strong className="block text-[var(--color-brand-glow)] font-bold mb-1 tracking-wider uppercase">{t.app.tabulaRazaInitiative}</strong>
+                          <strong className="block text-[var(--color-brand-glow)] font-bold mb-1 tracking-wider uppercase">{t.app.tabulaRasaInitiative}</strong>
                           {t.app.initiativeDesc}
-                          <span className="block mt-1 opacity-75">COMM_LINK: <a href="mailto:privacy@tabularaza.org" className="hover:text-[var(--color-brand-glow)] hover:underline cursor-pointer transition-colors text-white">privacy@tabularaza.org</a></span>
+                          <span className="block mt-1 opacity-75">COMM_LINK: <a href="mailto:privacy@tabularasa.connectome.name" className="hover:text-[var(--color-brand-glow)] hover:underline cursor-pointer transition-colors text-white">privacy@tabularasa.connectome.name</a></span>
                        </>
                     )}
                 </div>

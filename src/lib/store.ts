@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { SchemaPerson } from '../types';
 
-const STORAGE_KEY = 'tabulaRaza_userProfile';
+const STORAGE_KEY = 'tabulaRasa_userProfile';
 
 const generateGuestProfile = (): SchemaPerson => ({
   "@context": "https://schema.org",

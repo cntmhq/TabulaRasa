@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SchemaOrganization, SchemaPerson } from '../types';
-import { Send, Copy, CheckCircle2, UserCircle2 } from 'lucide-react';
+import { Send, Copy, CheckCircle2, UserCircle2, ChevronDown } from 'lucide-react';
 import { getTranslation } from '../locales';
 
 interface ComposerProps {
@@ -47,6 +47,15 @@ export function Composer({ broker, profile }: ComposerProps) {
         </div>
         <h3 className="text-lg font-mono text-[var(--color-brand-primary)]/70 uppercase tracking-widest mb-2">{t.composer.awaitingTarget}</h3>
         <p className="text-sm font-mono text-[var(--color-brand-primary)]/50 max-w-sm mx-auto">{t.composer.selectTargetPrompt}</p>
+
+        <button
+          type="button"
+          onClick={() => document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          className="md:hidden mt-8 flex flex-col items-center gap-2 text-[var(--color-brand-glow)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-primary)]/50 rounded-md px-3 py-2"
+        >
+          <span className="text-xs font-mono uppercase tracking-widest">{t.composer.scrollToDirectory}</span>
+          <ChevronDown size={28} className="animate-bounce drop-shadow-[0_0_8px_var(--color-brand-glow)]" />
+        </button>
       </div>
     );
   }
