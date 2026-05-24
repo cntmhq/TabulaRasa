@@ -5,7 +5,7 @@ import { getTranslation } from '../locales';
 import { useGmailConsent } from '../lib/gomail';
 import { getDraft, setDraft } from '../lib/session';
 
-const LINE_WIDTH = 65;
+const LINE_WIDTH = 52;
 
 // Greedy word-wrap on whitespace. A single word longer than the width is
 // emitted on its own line rather than mid-broken — keeps URLs and email
@@ -233,7 +233,18 @@ export function Composer({ broker, profile }: ComposerProps) {
              <div className="bg-[var(--color-brand-dark)] p-2 rounded border border-[var(--color-brand-element)]">{subject}</div>
           </div>
           <div className="space-y-1 flex flex-col flex-1 min-h-0">
-             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs shrink-0">{t.composer.payload}</span>
+             <div className="flex items-center justify-between shrink-0">
+               <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.payload}</span>
+               {customBody !== null && (
+                 <button
+                   type="button"
+                   onClick={() => setCustomBody(null)}
+                   className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-brand-primary)]/60 hover:text-[var(--color-brand-glow)] transition-colors cursor-pointer px-2 py-0.5 rounded border border-transparent hover:border-[var(--color-brand-element)]"
+                 >
+                   {t.composer.resetTemplate}
+                 </button>
+               )}
+             </div>
              <textarea
                value={bodyToUse}
                onChange={(e) => setCustomBody(e.target.value)}

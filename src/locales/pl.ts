@@ -69,7 +69,8 @@ export default {
     gmailSend: "Wyślij przez Gmail",
     gmailSending: "Wysyłanie…",
     gmailDispatched: "Wiadomość wysłana przez Gmail. ID:",
-    gmailFailed: "Wysyłka Gmail nie powiodła się"
+    gmailFailed: "Wysyłka Gmail nie powiodła się",
+    resetTemplate: "Przywróć szablon"
   },
   profile: {
     configuration: "Konfiguracja",

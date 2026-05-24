@@ -69,7 +69,8 @@ export default {
     gmailSend: "Send via Gmail",
     gmailSending: "Dispatching…",
     gmailDispatched: "Message dispatched via Gmail. ID:",
-    gmailFailed: "Gmail dispatch failed"
+    gmailFailed: "Gmail dispatch failed",
+    resetTemplate: "Reset to template"
   },
   profile: {
     configuration: "Configuration",
