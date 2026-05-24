@@ -60,7 +60,16 @@ export default {
     body3: "Furthermore, under Article 19 of the GDPR, I request that you communicate this erasure to each recipient to whom my personal data has been previously disclosed, unless this proves impossible or involves disproportionate effort.",
     body4: "Please consider this correspondence as a formal exercise of my rights as a data subject. I expect written confirmation of the receipt of this request and subsequent confirmation of the successful deletion of my data within the statutory period of 30 days.",
     body5: "Should you require any further information to verify my identity and proceed with this request, please notify me immediately.",
-    signOff: "Sincerely,"
+    signOff: "Sincerely,",
+    gmailLinked: "Gmail Send Channel Linked:",
+    gmailNotLinked: "Gmail send channel is available but not yet authorized.",
+    gmailSuspended: "Gmail send authorization was revoked. Reconnect to resume.",
+    gmailConnect: "Connect Gmail",
+    gmailRevoke: "Revoke Gmail",
+    gmailSend: "Send via Gmail",
+    gmailSending: "Dispatching…",
+    gmailDispatched: "Message dispatched via Gmail. ID:",
+    gmailFailed: "Gmail dispatch failed"
   },
   profile: {
     configuration: "Configuration",

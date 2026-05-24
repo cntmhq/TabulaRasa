@@ -4,6 +4,21 @@ export const brokers: SchemaOrganization[] = [
   {
     "@context": "https://schema.org",
     "@type": "Organization",
+    identifier: "pl-151",
+    name: "Connectome p.s.a.",
+    email: "anything@connectome.name",
+    url: "https://connectome.name",
+    address: ["ul. Narutowicza 40/1, 90-135 Łódź, Polska"],
+    contactPoint: {
+      "@type": "ContactPoint",
+      name: "Data Protection Officer",
+      email: "anything@connectome.name",
+      contactType: "data controller"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
     identifier: "pl-001",
     name: "Allegro sp. z o.o.",
     email: "kontakt@allegro.pl",

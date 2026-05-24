@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from './lib/store';
 import { Header } from './components/Header';
 import { BrokerCard } from './components/BrokerCard';
@@ -8,14 +8,23 @@ import { brokers } from './data/brokers';
 import { SchemaOrganization } from './types';
 import { ShieldAlert, Globe } from 'lucide-react';
 import { getTranslation } from './locales';
+import { getStoredBrokerId, setStoredBrokerId } from './lib/session';
 
 type ViewState = 'brokers' | 'tldr' | 'policy';
 
 export default function App() {
   const { profile, updateProfile, updatePreferences, signOut } = useStore();
-  const [selectedBroker, setSelectedBroker] = useState<SchemaOrganization | null>(null);
+  const [selectedBroker, setSelectedBroker] = useState<SchemaOrganization | null>(() => {
+    const id = getStoredBrokerId();
+    if (!id) return null;
+    return brokers.find(b => b.identifier === id) ?? null;
+  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeView, setActiveView] = useState<ViewState>('brokers');
+
+  useEffect(() => {
+    setStoredBrokerId(selectedBroker?.identifier ?? null);
+  }, [selectedBroker]);
   
   const currentLang = profile.preferences.language || 'en';
   const t = getTranslation(currentLang);

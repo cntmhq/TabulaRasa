@@ -60,7 +60,16 @@ export default {
     body3: "Zgodnie z Artykułem 19 RODO, żądam również, aby poinformowali Państwo o tym usunięciu każdego odbiorcę, któremu wcześniej ujawniono moje dane osobowe, chyba że okaże się to niemożliwe lub będzie wymagało niewspółmiernie dużego wysiłku.",
     body4: "Proszę traktować tę korespondencję jako formalne wykonanie moich praw jako podmiotu danych. Oczekuję pisemnego potwierdzenia otrzymania tego wniosku oraz późniejszego potwierdzenia pomyślnego usunięcia moich danych w ustawowym terminie 30 dni.",
     body5: "Jeśli potrzebują Państwo dodatkowych informacji, aby zweryfikować moją tożsamość i zrealizować ten wniosek, proszę o natychmiastowe powiadomienie.",
-    signOff: "Z poważaniem,"
+    signOff: "Z poważaniem,",
+    gmailLinked: "Kanał wysyłki Gmail połączony:",
+    gmailNotLinked: "Kanał wysyłki Gmail dostępny, ale jeszcze nieautoryzowany.",
+    gmailSuspended: "Autoryzacja Gmail została cofnięta. Połącz ponownie, aby wznowić.",
+    gmailConnect: "Połącz Gmail",
+    gmailRevoke: "Cofnij Gmail",
+    gmailSend: "Wyślij przez Gmail",
+    gmailSending: "Wysyłanie…",
+    gmailDispatched: "Wiadomość wysłana przez Gmail. ID:",
+    gmailFailed: "Wysyłka Gmail nie powiodła się"
   },
   profile: {
     configuration: "Konfiguracja",

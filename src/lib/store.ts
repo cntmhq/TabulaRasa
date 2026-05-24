@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { SchemaPerson } from '../types';
 
 const STORAGE_KEY = 'tabulaRasa_userProfile';
@@ -41,20 +41,20 @@ export const useStore = () => {
     }
   }, [profile]);
 
-  const updateProfile = (updates: Partial<SchemaPerson>) => {
+  const updateProfile = useCallback((updates: Partial<SchemaPerson>) => {
     setProfile(current => ({ ...current, ...updates }));
-  };
+  }, []);
 
-  const updatePreferences = (preferences: Partial<SchemaPerson["preferences"]>) => {
+  const updatePreferences = useCallback((preferences: Partial<SchemaPerson["preferences"]>) => {
     setProfile(current => ({
       ...current,
       preferences: { ...current.preferences, ...preferences }
     }));
-  };
+  }, []);
 
-  const signOut = () => {
+  const signOut = useCallback(() => {
     setProfile(generateGuestProfile());
-  };
+  }, []);
 
   return { profile, updateProfile, updatePreferences, signOut };
 };
