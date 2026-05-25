@@ -1,0 +1,65 @@
+nameOverride: ""
+fullnameOverride: ""
+
+# Single pod hosts both containers; SQLite is single-writer so replicas must be 1.
+replicaCount: 1
+
+frontend:
+  image:
+    repository: tabularasa-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 80
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+backend:
+  image:
+    repository: gomailproxy
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 8080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  config:
+    # These three URLs must match what you register with Google. Override per env.
+    appUrl: "http://tabularasa.local"
+    redirectUri: "http://tabularasa.local/api/v1/oauth/callback"
+    corsAllowedOrigins: "http://tabularasa.local"
+    maxAccounts: 50
+  # Stored in a generated Secret. Set on the install command line or via a
+  # values file; do NOT commit real values here.
+  #   openssl rand -hex 32   -> encryptionKey
+  secrets:
+    encryptionKey: ""
+    googleClientId: ""
+    googleClientSecret: ""
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: ""        # empty -> cluster default (local-path on k3s)
+    accessMode: ReadWriteOnce
+
+service:
+  type: ClusterIP
+  frontendPort: 80
+  backendPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  host: tabularasa.local
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: ""

@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tabularasa.fullname" . }}
+  labels:
+    {{- include "tabularasa.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  # SQLite is single-writer + the PVC is ReadWriteOnce, so we cannot do a
+  # RollingUpdate (two pods would race on the DB file). Recreate is correct.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "tabularasa.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "tabularasa.selectorLabels" . | nindent 8 }}
+      annotations:
+        # Roll the pod when the secret changes so env vars get picked up.
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: frontend
+              containerPort: {{ .Values.frontend.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: frontend
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: frontend
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            failureThreshold: 2
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - name: backend
+              containerPort: {{ .Values.backend.containerPort }}
+              protocol: TCP
+          env:
+            - name: LISTEN_ADDR
+              value: ":{{ .Values.backend.containerPort }}"
+            - name: APP_URL
+              value: {{ .Values.backend.config.appUrl | quote }}
+            - name: GOOGLE_OAUTH_REDIRECT_URI
+              value: {{ .Values.backend.config.redirectUri | quote }}
+            - name: CORS_ALLOWED_ORIGINS
+              value: {{ .Values.backend.config.corsAllowedOrigins | quote }}
+            - name: MAX_ACCOUNTS
+              value: {{ .Values.backend.config.maxAccounts | quote }}
+            - name: DATABASE_PATH
+              value: "/data/gomailproxy.db"
+          envFrom:
+            - secretRef:
+                name: {{ include "tabularasa.secretName" . }}
+          # The DB migration runs at boot; give it a generous startup window
+          # before the kubelet starts killing the pod.
+          startupProbe:
+            httpGet:
+              path: /livez
+              port: backend
+            periodSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: backend
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: backend
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            failureThreshold: 2
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          {{- if .Values.backend.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "tabularasa.pvcName" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

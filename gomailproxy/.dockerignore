@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+*.db
+*.db-journal
+*.log
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md

@@ -6,12 +6,33 @@ import { useGmailConsent } from '../lib/gomail';
 import { getDraft, setDraft } from '../lib/session';
 
 const LINE_WIDTH = 52;
+const NBSP = ' ';
+
+// Polish orphan words that must not sit alone at the end of a line:
+// single-letter prepositions/conjunctions (a, i, o, u, w, z) plus the
+// common two-letter ones (na, do, ze, we, po, za, co, że, by).
+const PL_ORPHANS_RE = /(?<=\s|^)([iaouwz]|na|do|ze|we|po|za|co|że|by|ale|aby)[ \t]+/gi;
+
+// English orphans: articles, the pronoun "I", short prepositions and
+// conjunctions where a line-end break reads as "weak" or choppy.
+// Articles: a, an, the. Pronoun: I. Prepositions: of, to, in, on, at,
+// by, as, with. Conjunctions: and, or, but, for, nor, if. Plus the
+// copula "is", the pronoun "it", and the negation "no".
+const EN_ORPHANS_RE = /(?<=\s|^)([aI]|an|the|of|to|in|on|at|by|is|it|or|as|if|no|and|but|for|nor|with)[ \t]+/gi;
+
+// Replace the trailing space after an orphan word with a non-breaking space
+// so the wrapper treats "orphan + next word" as a single inseparable token.
+function glueOrphans(text: string, lang: string | undefined): string {
+  const re = lang === 'pl' ? PL_ORPHANS_RE : EN_ORPHANS_RE;
+  return text.replace(re, `$1${NBSP}`);
+}
 
 // Greedy word-wrap on whitespace. A single word longer than the width is
-// emitted on its own line rather than mid-broken — keeps URLs and email
-// addresses intact at the cost of one over-width line in rare cases.
+// emitted on its own line rather than mid-broken — keeps URLs, email
+// addresses, and orphan-glued tokens intact. Splits only on ASCII space/tab
+// so non-breaking spaces (NBSP) survive as part of their token.
 function wrapParagraph(text: string, width: number): string {
-  const words = text.split(/\s+/).filter(Boolean);
+  const words = text.split(/[ \t]+/).filter(Boolean);
   if (words.length === 0) return '';
   const lines: string[] = [];
   let current = '';
@@ -99,6 +120,7 @@ export function Composer({ broker, profile }: ComposerProps) {
 
   const defaultBody = useMemo(() => {
     if (!broker) return '';
+    const lang = profile.preferences.language;
     const translatedContactName =
       t.brokers?.roles[broker.contactPoint.name as keyof typeof t.brokers.roles] || broker.contactPoint.name;
     const paragraphs = [
@@ -109,10 +131,10 @@ export function Composer({ broker, profile }: ComposerProps) {
       t.composer.body4,
       t.composer.body5,
       t.composer.signOff,
-    ].map(p => wrapParagraph(p, LINE_WIDTH));
+    ].map(p => wrapParagraph(glueOrphans(p, lang), LINE_WIDTH));
     const signature = `${activeFullName || '[Your Name]'}\n${activeEmail}`;
     return `${paragraphs.join('\n\n')}\n\n${signature}`;
-  }, [broker, t, activeFullName, activeEmail]);
+  }, [broker, t, activeFullName, activeEmail, profile.preferences.language]);
 
   if (!broker) {
     return (
@@ -185,7 +207,7 @@ export function Composer({ broker, profile }: ComposerProps) {
          </div>
       </div>
 
-      <div className="p-6 overflow-y-auto flex-1 flex flex-col">
+      <div className="p-6 overflow-hidden flex-1 flex flex-col min-h-0">
         {!autoFillEnabled && (
           <div className="mb-6 p-4 border border-[var(--color-brand-element)] rounded-lg bg-[var(--color-brand-dark)] space-y-4">
              <div className="flex items-center gap-2 text-sm font-mono text-[var(--color-brand-primary)] uppercase">
@@ -248,7 +270,7 @@ export function Composer({ broker, profile }: ComposerProps) {
              <textarea
                value={bodyToUse}
                onChange={(e) => setCustomBody(e.target.value)}
-               className="flex-1 w-full bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 min-h-[120px] sm:min-h-[280px] overflow-y-auto focus:border-[var(--color-brand-primary)] focus:outline-none transition-colors resize-none font-mono text-sm"
+               className="flex-1 min-h-0 w-full bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 overflow-y-auto focus:border-[var(--color-brand-primary)] focus:outline-none transition-colors resize-none font-mono text-sm"
                spellCheck={false}
              />
           </div>

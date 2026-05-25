@@ -38,13 +38,14 @@ func (s *Server) Register(e *echo.Echo) {
 		AllowCredentials: false,
 	}))
 
+	s.registerHealth(e)
+
 	v1 := e.Group("/api/v1")
 	v1.POST("/accounts/onboard", s.handleOnboard)
 	v1.GET("/accounts/status", s.handleAccountStatus)
 	v1.DELETE("/accounts", s.handleDeleteAccount)
 	v1.GET("/oauth/callback", s.handleOAuthCallback)
 	v1.POST("/email/send", s.handleSend)
-	e.GET("/healthz", func(c echo.Context) error { return c.JSON(http.StatusOK, echo.Map{"status": "ok"}) })
 }
 
 // ---------- onboarding ----------
