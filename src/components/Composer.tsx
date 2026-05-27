@@ -3,9 +3,10 @@ import { SchemaOrganization, SchemaPerson } from '../types';
 import { Send, Copy, CheckCircle2, UserCircle2, ChevronDown, Mail, Link2, Unlink, Loader2 } from 'lucide-react';
 import { getTranslation } from '../locales';
 import { useGmailConsent } from '../lib/gomail';
+import { isInternalUser } from '../lib/internalUsers';
 import { getDraft, setDraft } from '../lib/session';
 
-const LINE_WIDTH = 52;
+const LINE_WIDTH = 34;
 const NBSP = ' ';
 
 // Polish orphan words that must not sit alone at the end of a line:
@@ -74,7 +75,8 @@ export function Composer({ broker, profile }: ComposerProps) {
   // doesn't clobber the just-loaded draft for the new broker.
   const hydratedBrokerRef = useRef<string | null>(broker?.identifier ?? null);
 
-  const consentEmail = isAuth ? profile.email : null;
+  const isInternal = isInternalUser(profile.email);
+  const consentEmail = isAuth && isInternal ? profile.email : null;
   const gmail = useGmailConsent(consentEmail);
 
   // Derived info based on auth and preferences
@@ -163,6 +165,12 @@ export function Composer({ broker, profile }: ComposerProps) {
 
   const mailtoLink = `mailto:${broker.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyToUse)}`;
 
+  // On desktop the directory sits in a side column whose ancestor is overflow-hidden,
+  // so scrollIntoView is a no-op there; on mobile it scrolls main to the stacked directory.
+  const scrollToDirectory = () => {
+    document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(bodyToUse);
@@ -170,9 +178,10 @@ export function Composer({ broker, profile }: ComposerProps) {
     } catch (err) {
       console.error("Clipboard access failed", err);
     }
+    scrollToDirectory();
   };
 
-  const canUseGmail = isAuth && gmail.available;
+  const canUseGmail = isAuth && isInternal && gmail.available;
   const gmailActive = gmail.status === 'active';
 
   const handleSendGmail = async () => {
@@ -195,6 +204,7 @@ export function Composer({ broker, profile }: ComposerProps) {
       gmail.refresh();
     } finally {
       setSending(false);
+      scrollToDirectory();
     }
   };
 
@@ -339,6 +349,7 @@ export function Composer({ broker, profile }: ComposerProps) {
          )}
          <a
            href={mailtoLink}
+           onClick={scrollToDirectory}
            className="px-6 py-2.5 rounded bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-glow)] shadow-[0_0_15px_rgba(22,137,115,0.4)] text-sm font-bold font-mono uppercase tracking-widest transition-all focus:outline-none flex items-center gap-2 cursor-pointer"
          >
            <Send size={16} className="-mt-0.5" />

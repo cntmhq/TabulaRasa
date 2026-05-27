@@ -39,17 +39,28 @@ export default function App() {
     updatePreferences({ language: currentLang === 'en' ? 'pl' : 'en' });
   };
 
+  const selectView = (view: ViewState) => {
+    setActiveView(view);
+    document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <div className="h-[100dvh] w-full overflow-hidden flex flex-col font-sans relative selection:bg-[var(--color-brand-primary)] selection:text-[var(--color-brand-dark)]">
       {/* Decorative background grid and gradient */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-0" style={{ backgroundImage: 'radial-gradient(var(--color-brand-primary) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-[var(--color-brand-primary)]/5 to-transparent h-[400px] z-0" />
 
-      <Header 
-        profile={profile} 
+      <Header
+        profile={profile}
         onLogin={updateProfile}
         onSignOut={signOut}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onGoHome={() => {
+          setSelectedBroker(null);
+          setActiveView('brokers');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       <main className="flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10 flex flex-col md:flex-row gap-4 sm:gap-8 md:overflow-hidden overflow-y-auto overflow-x-hidden">
@@ -153,22 +164,22 @@ export default function App() {
       <footer className="shrink-0 border-t border-[var(--color-brand-element)] bg-[var(--color-brand-dark)]/80 backdrop-blur relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[var(--color-brand-primary)]/70">
           <div className="flex items-center gap-4 sm:gap-6">
-            <button 
-              onClick={() => setActiveView('brokers')} 
+            <button
+              onClick={() => selectView('brokers')}
               className={`hover:text-[var(--color-brand-glow)] transition-colors cursor-pointer ${activeView === 'brokers' ? 'text-[var(--color-brand-glow)] font-bold' : ''}`}
             >
               {t.app.directorySearch}
             </button>
             <span className="opacity-30">/</span>
-            <button 
-              onClick={() => setActiveView('tldr')} 
+            <button
+              onClick={() => selectView('tldr')}
               className={`hover:text-[var(--color-brand-glow)] transition-colors cursor-pointer ${activeView === 'tldr' ? 'text-[var(--color-brand-glow)] font-bold' : ''}`}
             >
               {t.app.tldrContext}
             </button>
             <span className="opacity-30">/</span>
-            <button 
-              onClick={() => setActiveView('policy')} 
+            <button
+              onClick={() => selectView('policy')}
               className={`hover:text-[var(--color-brand-glow)] transition-colors cursor-pointer ${activeView === 'policy' ? 'text-[var(--color-brand-glow)] font-bold' : ''}`}
             >
               {t.app.directivePolicy}

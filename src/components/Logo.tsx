@@ -1,6 +1,11 @@
-export function Logo() {
-  return (
-    <div className="flex items-center gap-3">
+interface LogoProps {
+  onClick?: () => void;
+  ariaLabel?: string;
+}
+
+export function Logo({ onClick, ariaLabel }: LogoProps) {
+  const inner = (
+    <>
       <svg
         width="32"
         height="32"
@@ -38,7 +43,7 @@ export function Logo() {
           strokeLinecap="square"
         />
       </svg>
-      <div>
+      <div className="text-left">
         <h1 className="text-xl font-bold tracking-widest text-[var(--color-brand-primary)] uppercase leading-none transition-colors">
           Tabula<span className="text-[var(--color-brand-glow)]">Rasa</span>
         </h1>
@@ -46,6 +51,21 @@ export function Logo() {
           GDPR Erasure Protocol
         </p>
       </div>
-    </div>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={ariaLabel || 'Go to home'}
+        className="flex items-center gap-3 cursor-pointer rounded focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-primary)]/50 hover:opacity-90 transition-opacity"
+      >
+        {inner}
+      </button>
+    );
+  }
+
+  return <div className="flex items-center gap-3">{inner}</div>;
 }
