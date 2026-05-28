@@ -6,7 +6,7 @@ interface LogoProps {
 export function Logo({ onClick, ariaLabel }: LogoProps) {
   const img = (
     <img
-      src="/engram-signature.svg"
+      src={`${import.meta.env.BASE_URL}engram-signature.svg`}
       alt="Engram"
       className="h-[186px] w-auto -mt-[26px] -mb-[54px] -ml-[16px] drop-shadow-[0_0_20px_rgba(82,209,184,0.35)]"
     />

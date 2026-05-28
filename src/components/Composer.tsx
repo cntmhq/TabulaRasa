@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { memo, useState, useEffect, useMemo, useRef } from 'react';
 import { SchemaOrganization, SchemaPerson } from '../types';
 import { Send, Copy, CheckCircle2, UserCircle2, ChevronDown, Mail, Link2, Unlink, Loader2 } from 'lucide-react';
 import { getTranslation } from '../locales';
@@ -57,7 +57,7 @@ interface ComposerProps {
   onRequestDirectory?: () => void;
 }
 
-export function Composer({ broker, profile, onRequestDirectory }: ComposerProps) {
+function ComposerImpl({ broker, profile, onRequestDirectory }: ComposerProps) {
   const isAuth = profile.authState.isAuthenticated;
   const autoFillEnabled = isAuth && profile.preferences.autoFillSignature;
 
@@ -362,3 +362,5 @@ export function Composer({ broker, profile, onRequestDirectory }: ComposerProps)
     </div>
   );
 }
+
+export const Composer = memo(ComposerImpl);

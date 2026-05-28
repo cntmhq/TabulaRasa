@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState, useTransition } from 'react';
 import { useStore } from './lib/store';
 import { Header } from './components/Header';
 import { BrokerCard } from './components/BrokerCard';
 import { Composer } from './components/Composer';
+import { Loader } from './components/Loader';
 import { ProfileModal } from './components/ProfileModal';
 import { SchemaOrganization } from './types';
 import { ShieldAlert, Globe } from 'lucide-react';
@@ -17,7 +18,30 @@ type PanelKey = 'brokers' | 'tldr' | 'policy';
 const panelKeyFor = (view: ViewState): PanelKey =>
   view === 'tldr' ? 'tldr' : view === 'policy' ? 'policy' : 'brokers';
 
-const PANEL_FADE_MS = 180;
+const PANEL_FADE_MS = 360;
+
+interface BrokerListProps {
+  brokers: SchemaOrganization[];
+  selectedId: string | null;
+  onSelect: (broker: SchemaOrganization) => void;
+  t: any;
+}
+
+const BrokerList = memo(function BrokerList({ brokers, selectedId, onSelect, t }: BrokerListProps) {
+  return (
+    <>
+      {brokers.map(broker => (
+        <BrokerCard
+          key={broker.identifier}
+          broker={broker}
+          isSelected={selectedId === broker.identifier}
+          onSelect={onSelect}
+          t={t}
+        />
+      ))}
+    </>
+  );
+});
 
 export default function App() {
   const { profile, updateProfile, updatePreferences, signOut } = useStore();
@@ -28,6 +52,7 @@ export default function App() {
   const [activeView, setActiveView] = useState<ViewState>('form');
   const [displayedView, setDisplayedView] = useState<ViewState>('form');
   const [panelVisible, setPanelVisible] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
   const currentLang = profile.preferences.language || 'pl';
   const showBrokersPanel = displayedView === 'brokers' || displayedView === 'form';
@@ -56,20 +81,28 @@ export default function App() {
 
   // Cross-fade the left panel when the rendered content actually changes.
   // brokers↔form share the same panel so they bypass the fade and just
-  // swap displayedView in place.
+  // swap displayedView in place. Heavy renders (e.g. mounting 151 broker
+  // cards) go through startTransition so React yields between work slices,
+  // keeping the loader's SVG animation paintable on the main thread.
   useEffect(() => {
     if (displayedView === activeView) return;
     if (panelKeyFor(displayedView) === panelKeyFor(activeView)) {
-      setDisplayedView(activeView);
+      startTransition(() => setDisplayedView(activeView));
       return;
     }
     setPanelVisible(false);
     const id = window.setTimeout(() => {
-      setDisplayedView(activeView);
-      requestAnimationFrame(() => setPanelVisible(true));
+      startTransition(() => setDisplayedView(activeView));
     }, PANEL_FADE_MS);
     return () => window.clearTimeout(id);
   }, [activeView, displayedView]);
+
+  // Fade the panel back in once the deferred render has actually committed.
+  useEffect(() => {
+    if (panelVisible || isPending || displayedView !== activeView) return;
+    const id = requestAnimationFrame(() => setPanelVisible(true));
+    return () => cancelAnimationFrame(id);
+  }, [panelVisible, isPending, displayedView, activeView]);
 
   const getLeftTitle = () => {
     if (displayedView === 'tldr') return t.app.tldrContext;
@@ -77,25 +110,36 @@ export default function App() {
     return t.app.directorySearch;
   };
 
-  const toggleLanguage = () => {
+  const toggleLanguage = useCallback(() => {
     updatePreferences({ language: currentLang === 'en' ? 'pl' : 'en' });
-  };
+  }, [updatePreferences, currentLang]);
 
-  const selectView = (view: ViewState) => {
+  const selectView = useCallback((view: ViewState) => {
     setActiveView(view);
     document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  }, []);
 
-  const handleSelectBroker = (broker: SchemaOrganization) => {
+  const handleSelectBroker = useCallback((broker: SchemaOrganization) => {
     setSelectedBroker(broker);
     setActiveView('form');
     document.getElementById('composer-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  }, []);
 
-  const focusForm = () => {
+  const focusForm = useCallback(() => {
     setActiveView('form');
     document.getElementById('composer-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  }, []);
+
+  const handleGoHome = useCallback(() => {
+    setSelectedBroker(null);
+    setActiveView('form');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleOpenSettings = useCallback(() => setIsSettingsOpen(true), []);
+  const handleCloseSettings = useCallback(() => setIsSettingsOpen(false), []);
+  const handleRequestDirectory = useCallback(() => setActiveView('brokers'), []);
 
   return (
     <div className="h-[100dvh] w-full overflow-hidden flex flex-col font-sans relative selection:bg-[var(--color-brand-primary)] selection:text-[var(--color-brand-dark)]">
@@ -107,21 +151,22 @@ export default function App() {
         profile={profile}
         onLogin={updateProfile}
         onSignOut={signOut}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onGoHome={() => {
-          setSelectedBroker(null);
-          setActiveView('form');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
+        onOpenSettings={handleOpenSettings}
+        onGoHome={handleGoHome}
       />
 
       <main className="flex-1 min-h-0 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10 flex flex-col md:flex-row gap-4 sm:gap-8 md:overflow-hidden overflow-y-auto overflow-x-hidden">
 
         {/* Left Column: Catalog or Modals */}
-        <section id="directory-section" className="order-2 md:order-1 flex-1 md:flex-none md:w-1/3 flex flex-col min-h-0 mb-2 md:mb-0 md:min-h-0 min-h-[100dvh] scroll-mt-4">
+        <section id="directory-section" className="order-2 md:order-1 flex-1 md:flex-none md:w-1/3 flex flex-col min-h-0 mb-2 md:mb-0 md:min-h-0 min-h-[100dvh] scroll-mt-4 relative">
           <div
-            className={`flex flex-col flex-1 min-h-0 transition-opacity duration-[180ms] will-change-[opacity] ${panelVisible ? 'opacity-100 ease-out' : 'opacity-0 ease-in'}`}
+            aria-hidden={panelVisible}
+            className={`absolute inset-0 z-10 flex items-center justify-center pointer-events-none transition-opacity duration-[360ms] ${panelVisible ? 'opacity-0 ease-out' : 'opacity-100 ease-in'}`}
+          >
+            <Loader size={32} />
+          </div>
+          <div
+            className={`flex flex-col flex-1 min-h-0 transition-opacity duration-[360ms] will-change-[opacity] ${panelVisible ? 'opacity-100 ease-out' : 'opacity-0 ease-in'}`}
           >
             <div className="flex items-center gap-3 mb-4 sm:mb-6 shrink-0">
               <h2 className="text-xl font-mono uppercase tracking-widest text-[var(--color-brand-glow)] truncate">{getLeftTitle()}</h2>
@@ -135,26 +180,16 @@ export default function App() {
               </div>
 
               <div className="space-y-3 overflow-y-auto pr-2 pb-2 flex-1 scroll-smooth">
-                {showBrokersPanel && !brokersReady && (
-                  <div className="space-y-3" aria-hidden>
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-[88px] rounded-lg border border-[var(--color-brand-element)] bg-black/40 animate-pulse"
-                      />
-                    ))}
-                  </div>
-                )}
+                {showBrokersPanel && !brokersReady && <Loader size={32} />}
 
-                {showBrokersPanel && brokersReady && brokers.map(broker => (
-                  <BrokerCard
-                    key={broker.identifier}
-                    broker={broker}
-                    isSelected={selectedBroker?.identifier === broker.identifier}
+                {showBrokersPanel && brokersReady && (
+                  <BrokerList
+                    brokers={brokers}
+                    selectedId={selectedBroker?.identifier ?? null}
                     onSelect={handleSelectBroker}
                     t={t}
                   />
-                ))}
+                )}
 
                 {displayedView === 'tldr' && (
                   <div className="space-y-5 text-sm font-mono text-[var(--color-brand-primary)] flex flex-col gap-2 opacity-90 leading-relaxed pr-2">
@@ -216,14 +251,14 @@ export default function App() {
           <Composer
             broker={selectedBroker}
             profile={profile}
-            onRequestDirectory={() => setActiveView('brokers')}
+            onRequestDirectory={handleRequestDirectory}
           />
         </section>
       </main>
 
       <ProfileModal
         isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+        onClose={handleCloseSettings}
         profile={profile}
         onUpdatePreferences={updatePreferences}
       />
