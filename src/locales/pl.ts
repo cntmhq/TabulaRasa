@@ -9,7 +9,7 @@ export default {
     found: "Znaleziono",
     tabulaRasaInitiative: "Inicjatywa Engram",
     initiativeDesc: "Osobisty system egzekwowania prywatności. Stworzony na licencji MIT.",
-    selectTarget: "Wybierz cel z katalogu, aby wygenerować wniosek o usunięcie danych zgodny z Art. 17 RODO. Upewnij się, że sprawdziłeś treść przed wysłaniem.",
+    selectTarget: "Wybierz podmiot z katalogu, aby wygenerować wniosek o usunięcie danych zgodny z Art. 17 RODO. Upewnij się, że sprawdziłeś treść przed wysłaniem.",
     tldr: {
       problemTitle: "Problem",
       problemDesc: "Brokerzy danych nieustannie gromadzą, analizują i sprzedają Twoje dane osobowe — często bez wyraźnej, świadomej zgody, opierając się na niejasnych klauzulach \"uzasadnionego interesu\". Tworzy to systemowe ryzyko naruszenia danych, kradzieży tożsamości i profilowania algorytmicznego.",
@@ -34,7 +34,7 @@ export default {
     signIn: "Zaloguj się z Google",
   },
   composer: {
-    actuatorTarget: "Cel",
+    actuatorTarget: "Broker",
     recipientDataControl: "Odbiorca (Administrator Danych)",
     targetAddress: "Adres Docelowy",
     legalDirective: "Dyrektywa Prawna",

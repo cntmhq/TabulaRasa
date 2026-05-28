@@ -43,7 +43,7 @@ export default {
     executeMailto: "Send Mailto",
     reviewPayload: "Review generated payload before dispatch",
     awaitingTarget: "Awaiting Target",
-    selectTargetPrompt: "Select a data broker entity from the catalog to initialize the erasure protocol sequence.",
+    selectTargetPrompt: "Select a data broker entity from the catalog to initialize the Opt—Out sequence.",
     scrollToDirectory: "Scroll down to the directory",
     protocolActive: "Active Form",
     guestMode: "Guest Mode: Manual Input required",

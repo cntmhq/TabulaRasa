@@ -158,10 +158,10 @@ export default function App() {
 
                 {displayedView === 'tldr' && (
                   <div className="space-y-5 text-sm font-mono text-[var(--color-brand-primary)] flex flex-col gap-2 opacity-90 leading-relaxed pr-2">
-                     <div>
+                     {/* <div>
                        <strong className="text-[var(--color-brand-glow)] block mb-1">{t.app.tldr.problemTitle}</strong>
                        {t.app.tldr.problemDesc}
-                     </div>
+                     </div> */}
                      <div>
                        <strong className="text-[var(--color-brand-glow)] block mb-1">{t.app.tldr.rightsTitle}</strong>
                        {t.app.tldr.rightsDesc}
@@ -176,16 +176,16 @@ export default function App() {
                 {displayedView === 'policy' && (
                   <div className="space-y-5 text-sm font-mono text-[var(--color-brand-primary)] flex flex-col gap-2 opacity-90 leading-relaxed pr-2">
                      <div>
+                       <strong className="text-[var(--color-brand-glow)] block mb-1">{t.app.policy.liabilityTitle}</strong>
+                       {t.app.policy.liabilityDesc}
+                     </div>
+                     <div>
                        <strong className="text-[var(--color-brand-glow)] block mb-1">{t.app.policy.trackingTitle}</strong>
                        {t.app.policy.trackingDesc}
                      </div>
                      <div>
                        <strong className="text-[var(--color-brand-glow)] block mb-1">{t.app.policy.storageTitle}</strong>
                        {t.app.policy.storageDesc}
-                     </div>
-                     <div>
-                       <strong className="text-[var(--color-brand-glow)] block mb-1">{t.app.policy.liabilityTitle}</strong>
-                       {t.app.policy.liabilityDesc}
                      </div>
                   </div>
                 )}

@@ -134,8 +134,10 @@ export function useGmailConsent(userEmail: string | null) {
   useEffect(() => {
     if (!enabled || !userEmail) {
       setStatus('unknown');
+      setError(null);
       return;
     }
+    setError(null);
     const cached = readCache(userEmail);
     if (cached) setStatus(cached.status);
     refresh();
