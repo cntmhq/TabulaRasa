@@ -1,10 +1,10 @@
-# TabulaRasa: Agentic Development Guide
+# Engram: Agentic Development Guide
 
-This document provides system instructions and architectural guidelines for AI agents working on **TabulaRasa**, a GDPR/RODO Article 17 erasure request generator.
+This document provides system instructions and architectural guidelines for AI agents working on **Engram**, a GDPR/RODO Article 17 erasure request generator.
 
 ## Project Overview
 
-**TabulaRasa** is a client-side privacy actuator. Its primary purpose is to help users issue formal "Right to Erasure" (opt-out) requests to data brokers.
+**Engram** is a client-side privacy actuator. Its primary purpose is to help users issue formal "Right to Erasure" (opt-out) requests to data brokers.
 - **Strictly Client-Side**: 100% zero-tracking architecture. No backend database for users, no external API calls for analytics, cookies, or tracking. Data is kept in `localStorage`.
 - **Identity Module**: Users can sign in with Google or manually enter their details, which are populated into an email template.
 - **Theme Constraints**: Deep charcoal grays, custom `var(--color-brand-*)` variables. "Cosmic Slate" aesthetic, hacker/cyberpunk undertones, but strictly clean layout.

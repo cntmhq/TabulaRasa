@@ -1,12 +1,13 @@
 export default {
   app: {
+    form: "Formularz",
     directorySearch: "Katalog",
     tldrContext: "TL;DR",
     directivePolicy: "Prywatność",
     systemInformation: "Informacje o Systemie",
     directoryList: "Lista Katalogowa",
     found: "Znaleziono",
-    tabulaRasaInitiative: "Inicjatywa TabulaRasa",
+    tabulaRasaInitiative: "Inicjatywa Engram",
     initiativeDesc: "Osobisty system egzekwowania prywatności. Stworzony na licencji MIT.",
     selectTarget: "Wybierz cel z katalogu, aby wygenerować wniosek o usunięcie danych zgodny z Art. 17 RODO. Upewnij się, że sprawdziłeś treść przed wysłaniem.",
     tldr: {
@@ -15,15 +16,15 @@ export default {
       rightsTitle: "Twoje Prawa (RODO)",
       rightsDesc: "Zgodnie z Ogólnym Rozporządzeniem o Ochronie Danych (RODO), masz fundamentalne Prawo do Bycia Zapomnianym (Artykuł 17). Masz wyraźne prawo żądać od każdej organizacji trwałego usunięcia Twoich danych osobowych.",
       obligationTitle: "Obowiązek",
-      obligationDesc: "Administratorzy danych są prawnie zobowiązani do spełnienia Twojego żądania usunięcia w ciągu 30 dni, chyba że mają zastosowanie bardzo rzadkie wyjątki. TabulaRasa upraszcza ten proces, zapewniając ujednolicone ramy do bezproblemowego egzekwowania tego prawa.",
+      obligationDesc: "Administratorzy danych są prawnie zobowiązani do spełnienia Twojego żądania usunięcia w ciągu 30 dni, chyba że mają zastosowanie bardzo rzadkie wyjątki. Engram upraszcza ten proces, zapewniając ujednolicone ramy do bezproblemowego egzekwowania tego prawa.",
     },
     policy: {
       trackingTitle: "Architektura Bez Śledzenia",
-      trackingDesc: "TabulaRasa to narzędzie działające w 100% po stronie klienta. Nie śledzimy Cię, nie przechowujemy Twoich danych na naszych serwerach aplikacji i nie stosujemy inwazyjnych ciasteczek analitycznych.",
+      trackingDesc: "Engram to narzędzie działające w 100% po stronie klienta. Nie śledzimy Cię, nie przechowujemy Twoich danych na naszych serwerach aplikacji i nie stosujemy inwazyjnych ciasteczek analitycznych.",
       storageTitle: "Tylko Pamięć Lokalna",
       storageDesc: "Stan uwierzytelniania, preferencje operacyjne i moduły tożsamości są przechowywane wyłącznie w lokalnej, bezpiecznej pamięci Twojej przeglądarki (localStorage).",
       liabilityTitle: "Wykonanie i Odpowiedzialność",
-      liabilityDesc: "Wszelka komunikacja inicjowana za pośrednictwem tego interfejsu jest generowana lokalnie i wysyłana bezpośrednio z Twojego klienta pocztowego do odpowiedniego administratora danych. TabulaRasa działa wyłącznie jako kompilator szablonów. Korzystając z tego narzędzia, zgadzasz się, że ponosisz osobistą odpowiedzialność za wysyłane żądania."
+      liabilityDesc: "Wszelka komunikacja inicjowana za pośrednictwem tego interfejsu jest generowana lokalnie i wysyłana bezpośrednio z Twojego klienta pocztowego do odpowiedniego administratora danych. Engram działa wyłącznie jako kompilator szablonów. Korzystając z tego narzędzia, zgadzasz się, że ponosisz osobistą odpowiedzialność za wysyłane żądania."
     }
   },
   auth: {
@@ -33,18 +34,18 @@ export default {
     signIn: "Zaloguj się z Google",
   },
   composer: {
-    actuatorTarget: "Cel Operacji",
+    actuatorTarget: "Cel",
     recipientDataControl: "Odbiorca (Administrator Danych)",
     targetAddress: "Adres Docelowy",
     legalDirective: "Dyrektywa Prawna",
-    copyRaw: "Kopiuj Tekst",
+    copyRaw: "Kopiuj",
     copied: "Skopiowano",
-    executeMailto: "Uruchom Klienta E-mail",
+    executeMailto: "Wyślij E-mail",
     reviewPayload: "Przejrzyj wygenerowaną treść przed wysłaniem",
     awaitingTarget: "Wybierz odbiorcę z katalogu",
     selectTargetPrompt: "Wybierz brokera danych z katalogu, aby zainicjować szablon opt-out.",
     scrollToDirectory: "Przewiń w dół do katalogu",
-    protocolActive: "Protokół Aktywny",
+    protocolActive: "Aktywny Formularz",
     guestMode: "Tryb Gościa: Wprowadź dane ręcznie",
     firstName: "Imię",
     lastName: "Nazwisko",

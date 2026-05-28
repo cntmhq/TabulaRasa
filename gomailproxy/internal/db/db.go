@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/glebarez/sqlite"
-	"github.com/tabularasa/gomailproxy/internal/models"
+	"github.com/engram/gomailproxy/internal/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )

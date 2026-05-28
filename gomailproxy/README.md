@@ -1,7 +1,7 @@
 # gomailproxy
 
 Go microservice that proxies authenticated Gmail `users.messages.send` calls
-on behalf of TabulaRasa users. Implements the architecture from
+on behalf of Engram users. Implements the architecture from
 `docs/gomail-plan.md`:
 
 - OAuth2 authorization-code flow against Google (offline + refresh tokens)

@@ -45,7 +45,7 @@ export function Logo({ onClick, ariaLabel }: LogoProps) {
       </svg>
       <div className="text-left">
         <h1 className="text-xl font-bold tracking-widest text-[var(--color-brand-primary)] uppercase leading-none transition-colors">
-          Tabula<span className="text-[var(--color-brand-glow)]">Rasa</span>
+          Engram
         </h1>
         <p className="text-[0.6rem] font-mono text-[var(--color-brand-primary)] tracking-widest uppercase opacity-70">
           GDPR Erasure Protocol

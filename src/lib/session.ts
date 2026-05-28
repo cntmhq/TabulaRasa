@@ -2,8 +2,8 @@
 // page reload (e.g. the OAuth redirect round-trip back from the gomailproxy).
 // Profile data lives in store.ts — keep these two concerns separate.
 
-const BROKER_KEY = 'tabulaRasa_selectedBrokerId';
-const DRAFT_KEY = 'tabulaRasa_drafts';
+const BROKER_KEY = 'engram_selectedBrokerId';
+const DRAFT_KEY = 'engram_drafts';
 
 export function getStoredBrokerId(): string | null {
   try {

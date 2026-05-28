@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { SchemaPerson } from '../types';
 import { useGoogleAuth } from '../lib/auth';
 import { UserCircle, LogOut, Settings } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { getTranslation } from '../locales';
 
 interface AuthUIProps {
@@ -46,38 +45,33 @@ export function AuthUI({ profile, onLogin, onSignOut, onOpenSettings }: AuthUIPr
           </span>
         </button>
 
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              transition={{ duration: 0.15 }}
-              className="absolute right-0 mt-3 w-56 bg-[var(--color-brand-surface)] border border-[var(--color-brand-primary)] shadow-[0_0_20px_rgba(22,137,115,0.2)] rounded-lg overflow-hidden py-1 z-50 text-[var(--color-brand-glow)]"
-            >
-              <div className="px-4 py-3 border-b border-[var(--color-brand-element)]">
-                <p className="text-sm font-bold truncate">{profile.givenName} {profile.familyName}</p>
-                <p className="text-xs font-mono opacity-70 truncate mt-1">{profile.email}</p>
-              </div>
-              
-              <button 
-                onClick={() => { setMenuOpen(false); onOpenSettings(); }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--color-brand-element)] transition-colors text-left cursor-pointer"
-              >
-                <Settings size={16} className="text-[var(--color-brand-primary)]" /> 
-                {t.auth.configuration}
-              </button>
-              
-              <button 
-                onClick={() => { setMenuOpen(false); onSignOut(); }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--color-brand-element)] transition-colors text-left text-red-400 cursor-pointer"
-              >
-                <LogOut size={16} /> 
-                {t.auth.terminateSession}
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div
+          aria-hidden={!menuOpen}
+          className={`absolute right-0 mt-3 w-56 bg-[var(--color-brand-surface)] border border-[var(--color-brand-primary)] shadow-[0_0_20px_rgba(22,137,115,0.2)] rounded-lg overflow-hidden py-1 z-50 text-[var(--color-brand-glow)] origin-top-right transition-[opacity,transform] duration-200 will-change-[opacity,transform] ${menuOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto ease-out' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none ease-in'}`}
+        >
+          <div className="px-4 py-3 border-b border-[var(--color-brand-element)]">
+            <p className="text-sm font-bold truncate">{profile.givenName} {profile.familyName}</p>
+            <p className="text-xs font-mono opacity-70 truncate mt-1">{profile.email}</p>
+          </div>
+
+          <button
+            onClick={() => { setMenuOpen(false); onOpenSettings(); }}
+            tabIndex={menuOpen ? 0 : -1}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--color-brand-element)] transition-colors text-left cursor-pointer"
+          >
+            <Settings size={16} className="text-[var(--color-brand-primary)]" />
+            {t.auth.configuration}
+          </button>
+
+          <button
+            onClick={() => { setMenuOpen(false); onSignOut(); }}
+            tabIndex={menuOpen ? 0 : -1}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--color-brand-element)] transition-colors text-left text-red-400 cursor-pointer"
+          >
+            <LogOut size={16} />
+            {t.auth.terminateSession}
+          </button>
+        </div>
       </div>
     );
   }

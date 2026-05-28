@@ -28,7 +28,7 @@ export interface SendPayload {
   bodyContentHtml?: string;
 }
 
-const STORAGE_KEY = 'tabulaRasa_gmailConsent';
+const STORAGE_KEY = 'engram_gmailConsent';
 
 function getBaseUrl(): string | null {
   const url = import.meta.env.VITE_GOMAILPROXY_URL;

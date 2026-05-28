@@ -1,4 +1,4 @@
-# TabulaRasa Quickstart
+# Engram Quickstart
 
 Onboarding for human developers and AI coding agents. Read this first; it
 points to the deeper docs for everything else.
@@ -50,8 +50,8 @@ working locally — see [§ Gmail send flow](#gmail-send-flow).
 ### 1. Clone & install the PWA
 
 ```bash
-git clone <repo-url> tabularasa
-cd tabularasa
+git clone <repo-url> engram
+cd engram
 npm install
 cp .env.example .env.local   # edit values you need
 ```
@@ -122,7 +122,7 @@ go build -o bin/proxy .  # ship a binary
 ## Repo map
 
 ```
-tabularasa/
+engram/
 ├── AGENTS.md                       # AI agent rules — READ FIRST if you're an agent
 ├── README.md                       # short product pitch
 ├── docs/

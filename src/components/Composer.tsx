@@ -54,9 +54,10 @@ function wrapParagraph(text: string, width: number): string {
 interface ComposerProps {
   broker: SchemaOrganization | null;
   profile: SchemaPerson;
+  onRequestDirectory?: () => void;
 }
 
-export function Composer({ broker, profile }: ComposerProps) {
+export function Composer({ broker, profile, onRequestDirectory }: ComposerProps) {
   const isAuth = profile.authState.isAuthenticated;
   const autoFillEnabled = isAuth && profile.preferences.autoFillSignature;
 
@@ -149,7 +150,10 @@ export function Composer({ broker, profile }: ComposerProps) {
 
         <button
           type="button"
-          onClick={() => document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          onClick={() => {
+            onRequestDirectory?.();
+            document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
           className="md:hidden mt-8 flex flex-col items-center gap-2 text-[var(--color-brand-glow)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-primary)]/50 rounded-md px-3 py-2"
         >
           <span className="text-xs font-mono uppercase tracking-widest">{t.composer.scrollToDirectory}</span>
@@ -218,33 +222,33 @@ export function Composer({ broker, profile }: ComposerProps) {
       </div>
 
       <div className="p-6 overflow-hidden flex-1 flex flex-col min-h-0">
-        {!autoFillEnabled && (
-          <div className="mb-6 p-4 border border-[var(--color-brand-element)] rounded-lg bg-[var(--color-brand-dark)] space-y-4">
-             <div className="flex items-center gap-2 text-sm font-mono text-[var(--color-brand-primary)] uppercase">
-                <UserCircle2 size={16} /> {t.composer.guestMode}
-             </div>
-             <div className="grid grid-cols-2 gap-4">
-               <div>
-                 <input 
-                   type="text" 
-                   placeholder={t.composer.firstName} 
-                   value={manualFirstName}
-                   onChange={(e) => setManualFirstName(e.target.value)}
-                   className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
-                 />
-               </div>
-               <div>
-                 <input 
-                   type="text" 
-                   placeholder={t.composer.lastName}
-                   value={manualLastName}
-                   onChange={(e) => setManualLastName(e.target.value)}
-                   className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
-                 />
-               </div>
-             </div>
-          </div>
-        )}
+        <div className="mb-6 flex flex-nowrap items-center gap-3 pb-4 border-b border-[var(--color-brand-element)]">
+           <button
+             onClick={handleCopy}
+             className="flex-2 py-2.5 rounded bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] hover:border-[var(--color-brand-primary)] text-sm font-mono uppercase tracking-widest text-[var(--color-brand-primary)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+           >
+             {copied ? t.composer.copied : t.composer.copyRaw}
+             {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
+           </button>
+           {canUseGmail && gmailActive && (
+             <button
+               onClick={handleSendGmail}
+               disabled={sending}
+               className="flex-2 py-2.5 rounded bg-[var(--color-brand-surface)] border border-[var(--color-brand-primary)] hover:border-[var(--color-brand-glow)] text-sm font-bold font-mono uppercase tracking-widest text-[var(--color-brand-glow)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+             >
+               {sending ? t.composer.gmailSending : t.composer.gmailSend}
+               {sending ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+             </button>
+           )}
+           <a
+             href={mailtoLink}
+             onClick={scrollToDirectory}
+             className="flex-3 py-2.5 rounded bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-glow)] shadow-[0_0_15px_rgba(22,137,115,0.4)] text-sm font-bold font-mono uppercase tracking-widest transition-all focus:outline-none flex items-center justify-center gap-2 cursor-pointer"
+           >
+             {t.composer.executeMailto}
+             <Send size={16} className="-mt-0.5" />
+           </a>
+        </div>
 
         {autoFillEnabled && (
           <div className="mb-6 p-4 border border-dashed border-[var(--color-brand-primary)]/50 rounded-lg bg-[var(--color-brand-primary)]/5 flex items-center gap-3">
@@ -329,33 +333,34 @@ export function Composer({ broker, profile }: ComposerProps) {
         </div>
       )}
 
-      <div className="border-t border-[var(--color-brand-element)] p-4 bg-[var(--color-brand-dark)] flex flex-wrap items-center justify-end gap-3 z-10">
-         <button
-           onClick={handleCopy}
-           className="px-5 py-2.5 rounded bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] hover:border-[var(--color-brand-primary)] text-sm font-mono uppercase tracking-widest text-[var(--color-brand-primary)] transition-all flex items-center gap-2 cursor-pointer"
-         >
-           {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
-           {copied ? t.composer.copied : t.composer.copyRaw}
-         </button>
-         {canUseGmail && gmailActive && (
-           <button
-             onClick={handleSendGmail}
-             disabled={sending}
-             className="px-6 py-2.5 rounded bg-[var(--color-brand-surface)] border border-[var(--color-brand-primary)] hover:border-[var(--color-brand-glow)] text-sm font-bold font-mono uppercase tracking-widest text-[var(--color-brand-glow)] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
-           >
-             {sending ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
-             {sending ? t.composer.gmailSending : t.composer.gmailSend}
-           </button>
-         )}
-         <a
-           href={mailtoLink}
-           onClick={scrollToDirectory}
-           className="px-6 py-2.5 rounded bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-glow)] shadow-[0_0_15px_rgba(22,137,115,0.4)] text-sm font-bold font-mono uppercase tracking-widest transition-all focus:outline-none flex items-center gap-2 cursor-pointer"
-         >
-           <Send size={16} className="-mt-0.5" />
-           {t.composer.executeMailto}
-         </a>
-      </div>
+
+      {!autoFillEnabled && (
+        <div className="border-t border-[var(--color-brand-element)] p-4 bg-[var(--color-brand-dark)] space-y-4">
+           <div className="flex items-center gap-2 text-sm font-mono text-[var(--color-brand-primary)] uppercase">
+              <UserCircle2 size={16} /> {t.composer.guestMode}
+           </div>
+           <div className="grid grid-cols-2 gap-4">
+             <div>
+               <input
+                 type="text"
+                 placeholder={t.composer.firstName}
+                 value={manualFirstName}
+                 onChange={(e) => setManualFirstName(e.target.value)}
+                 className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
+               />
+             </div>
+             <div>
+               <input
+                 type="text"
+                 placeholder={t.composer.lastName}
+                 value={manualLastName}
+                 onChange={(e) => setManualLastName(e.target.value)}
+                 className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
+               />
+             </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

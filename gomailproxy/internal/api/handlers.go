@@ -10,10 +10,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/tabularasa/gomailproxy/internal/config"
-	mailbuilder "github.com/tabularasa/gomailproxy/internal/mail"
-	"github.com/tabularasa/gomailproxy/internal/models"
-	"github.com/tabularasa/gomailproxy/internal/oauth"
+	"github.com/engram/gomailproxy/internal/config"
+	mailbuilder "github.com/engram/gomailproxy/internal/mail"
+	"github.com/engram/gomailproxy/internal/models"
+	"github.com/engram/gomailproxy/internal/oauth"
 	"gorm.io/gorm"
 )
 

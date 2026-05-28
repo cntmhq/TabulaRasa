@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/tabularasa/gomailproxy/internal/crypto"
+	"github.com/engram/gomailproxy/internal/crypto"
 	"gorm.io/gorm"
 )
 
