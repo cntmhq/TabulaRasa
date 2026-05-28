@@ -250,15 +250,6 @@ export function Composer({ broker, profile, onRequestDirectory }: ComposerProps)
            </a>
         </div>
 
-        {autoFillEnabled && (
-          <div className="mb-6 p-4 border border-dashed border-[var(--color-brand-primary)]/50 rounded-lg bg-[var(--color-brand-primary)]/5 flex items-center gap-3">
-             <CheckCircle2 size={18} className="text-[var(--color-brand-primary)]" />
-             <div className="text-sm font-mono opacity-80">
-                <span className="text-[var(--color-brand-primary)]">{t.composer.autoFillActive}</span> {t.composer.usingIdentityModule} {activeFullName}
-             </div>
-          </div>
-        )}
-
         <div className="space-y-4 font-mono text-sm flex flex-col flex-1 min-h-0">
           <div className="space-y-1 shrink-0">
              <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.to}</span>
@@ -289,11 +280,18 @@ export function Composer({ broker, profile, onRequestDirectory }: ComposerProps)
              />
           </div>
         </div>
+
+        {autoFillEnabled && (
+          <div className="py-3 border-t border-[var(--color-brand-element)] flex items-center gap-2 text-xs font-mono text-[var(--color-brand-primary)]">
+             <CheckCircle2 size={14} className="text-[var(--color-brand-primary)]" />
+             {t.composer.autoFillActive}
+          </div>
+        )}
       </div>
 
       {canUseGmail && (
-        <div className="border-t border-[var(--color-brand-element)] px-4 py-3 bg-[var(--color-brand-dark)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono">
-          <div className="flex items-center gap-2 text-[var(--color-brand-primary)] opacity-90">
+        <div className="border-t border-[var(--color-brand-element)] px-4 py-3 bg-[var(--color-brand-dark)] flex items-center justify-between gap-4 text-xs font-mono">
+          <div className="flex items-center gap-2 text-[var(--color-brand-primary)] opacity-90 flex-1">
             <Mail size={14} />
             {gmailActive ? (
               <span><span className="text-[var(--color-brand-glow)]">{t.composer.gmailLinked}</span> {profile.email}</span>
@@ -303,7 +301,7 @@ export function Composer({ broker, profile, onRequestDirectory }: ComposerProps)
               <span>{t.composer.gmailNotLinked}</span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex-1 flex items-center justify-end">
             {gmailActive ? (
               <button
                 onClick={gmail.disconnect}
