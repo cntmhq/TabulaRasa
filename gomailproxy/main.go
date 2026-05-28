@@ -5,11 +5,11 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
-	"github.com/engram/gomailproxy/internal/api"
-	"github.com/engram/gomailproxy/internal/config"
-	"github.com/engram/gomailproxy/internal/crypto"
-	"github.com/engram/gomailproxy/internal/db"
-	"github.com/engram/gomailproxy/internal/oauth"
+	"github.com/tabularasa/gomailproxy/internal/api"
+	"github.com/tabularasa/gomailproxy/internal/config"
+	"github.com/tabularasa/gomailproxy/internal/crypto"
+	"github.com/tabularasa/gomailproxy/internal/db"
+	"github.com/tabularasa/gomailproxy/internal/oauth"
 )
 
 func main() {

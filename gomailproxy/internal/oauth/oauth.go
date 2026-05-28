@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/engram/gomailproxy/internal/config"
-	"github.com/engram/gomailproxy/internal/models"
+	"github.com/tabularasa/gomailproxy/internal/config"
+	"github.com/tabularasa/gomailproxy/internal/models"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	gmailapi "google.golang.org/api/gmail/v1"
