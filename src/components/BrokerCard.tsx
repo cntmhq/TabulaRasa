@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { SchemaOrganization } from '../types';
 import { Database, Shield, ExternalLink, MapPin } from 'lucide-react';
 
@@ -8,7 +9,7 @@ interface BrokerCardProps {
   t?: any; // To allow using translations
 }
 
-export function BrokerCard({ broker, isSelected, onSelect, t }: BrokerCardProps) {
+function BrokerCardImpl({ broker, isSelected, onSelect, t }: BrokerCardProps) {
   return (
     <button
       onClick={() => onSelect(broker)}
@@ -68,3 +69,5 @@ export function BrokerCard({ broker, isSelected, onSelect, t }: BrokerCardProps)
     </button>
   );
 }
+
+export const BrokerCard = memo(BrokerCardImpl);

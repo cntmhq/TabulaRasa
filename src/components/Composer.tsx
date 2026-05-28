@@ -1,14 +1,63 @@
-import { useState, useEffect } from 'react';
+import { memo, useState, useEffect, useMemo, useRef } from 'react';
 import { SchemaOrganization, SchemaPerson } from '../types';
-import { Send, Copy, CheckCircle2, UserCircle2, ChevronDown } from 'lucide-react';
+import { Send, Copy, CheckCircle2, UserCircle2, ChevronDown, Mail, Link2, Unlink, Loader2 } from 'lucide-react';
 import { getTranslation } from '../locales';
+import { useGmailConsent } from '../lib/gomail';
+import { isInternalUser } from '../lib/internalUsers';
+import { getDraft, setDraft } from '../lib/session';
+
+const LINE_WIDTH = 34;
+const NBSP = ' ';
+
+// Polish orphan words that must not sit alone at the end of a line:
+// single-letter prepositions/conjunctions (a, i, o, u, w, z) plus the
+// common two-letter ones (na, do, ze, we, po, za, co, że, by).
+const PL_ORPHANS_RE = /(?<=\s|^)([iaouwz]|na|do|ze|we|po|za|co|że|by|ale|aby)[ \t]+/gi;
+
+// English orphans: articles, the pronoun "I", short prepositions and
+// conjunctions where a line-end break reads as "weak" or choppy.
+// Articles: a, an, the. Pronoun: I. Prepositions: of, to, in, on, at,
+// by, as, with. Conjunctions: and, or, but, for, nor, if. Plus the
+// copula "is", the pronoun "it", and the negation "no".
+const EN_ORPHANS_RE = /(?<=\s|^)([aI]|an|the|of|to|in|on|at|by|is|it|or|as|if|no|and|but|for|nor|with)[ \t]+/gi;
+
+// Replace the trailing space after an orphan word with a non-breaking space
+// so the wrapper treats "orphan + next word" as a single inseparable token.
+function glueOrphans(text: string, lang: string | undefined): string {
+  const re = lang === 'pl' ? PL_ORPHANS_RE : EN_ORPHANS_RE;
+  return text.replace(re, `$1${NBSP}`);
+}
+
+// Greedy word-wrap on whitespace. A single word longer than the width is
+// emitted on its own line rather than mid-broken — keeps URLs, email
+// addresses, and orphan-glued tokens intact. Splits only on ASCII space/tab
+// so non-breaking spaces (NBSP) survive as part of their token.
+function wrapParagraph(text: string, width: number): string {
+  const words = text.split(/[ \t]+/).filter(Boolean);
+  if (words.length === 0) return '';
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    if (!current) {
+      current = word;
+    } else if (current.length + 1 + word.length <= width) {
+      current += ' ' + word;
+    } else {
+      lines.push(current);
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines.join('\n');
+}
 
 interface ComposerProps {
   broker: SchemaOrganization | null;
   profile: SchemaPerson;
+  onRequestDirectory?: () => void;
 }
 
-export function Composer({ broker, profile }: ComposerProps) {
+function ComposerImpl({ broker, profile, onRequestDirectory }: ComposerProps) {
   const isAuth = profile.authState.isAuthenticated;
   const autoFillEnabled = isAuth && profile.preferences.autoFillSignature;
 
@@ -17,7 +66,19 @@ export function Composer({ broker, profile }: ComposerProps) {
   const [manualLastName, setManualLastName] = useState('');
 
   const [copied, setCopied] = useState(false);
-  const [customBody, setCustomBody] = useState<string | null>(null);
+  const [customBody, setCustomBody] = useState<string | null>(() =>
+    broker ? getDraft(broker.identifier) : null
+  );
+  const [gmailNotice, setGmailNotice] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
+  const [sending, setSending] = useState(false);
+
+  // Tracks which broker the current customBody belongs to so a broker switch
+  // doesn't clobber the just-loaded draft for the new broker.
+  const hydratedBrokerRef = useRef<string | null>(broker?.identifier ?? null);
+
+  const isInternal = isInternalUser(profile.email);
+  const consentEmail = isAuth && isInternal ? profile.email : null;
+  const gmail = useGmailConsent(consentEmail);
 
   // Derived info based on auth and preferences
   const activeFirstName = autoFillEnabled ? profile.givenName : manualFirstName;
@@ -36,8 +97,47 @@ export function Composer({ broker, profile }: ComposerProps) {
   }, [copied]);
 
   useEffect(() => {
-    setCustomBody(null);
-  }, [broker?.identifier, profile.preferences.language]);
+    setGmailNotice(null);
+    if (!broker) {
+      hydratedBrokerRef.current = null;
+      setCustomBody(null);
+      return;
+    }
+    if (hydratedBrokerRef.current === broker.identifier) return;
+    setCustomBody(getDraft(broker.identifier));
+    hydratedBrokerRef.current = broker.identifier;
+  }, [broker?.identifier]);
+
+  useEffect(() => {
+    if (!broker) return;
+    if (hydratedBrokerRef.current !== broker.identifier) return;
+    setDraft(broker.identifier, customBody);
+  }, [customBody, broker?.identifier]);
+
+  useEffect(() => {
+    if (gmail.error) {
+      setGmailNotice({ kind: 'error', text: gmail.error });
+      gmail.clearError();
+    }
+  }, [gmail.error, gmail.clearError]);
+
+  const defaultBody = useMemo(() => {
+    if (!broker) return '';
+    const lang = profile.preferences.language;
+    const translatedContactName =
+      t.brokers?.roles[broker.contactPoint.name as keyof typeof t.brokers.roles] || broker.contactPoint.name;
+    const paragraphs = [
+      t.composer.greeting.replace('{name}', translatedContactName),
+      t.composer.body1.replace('{name}', broker.name),
+      t.composer.body2,
+      t.composer.body3,
+      t.composer.body4,
+      t.composer.body5,
+      t.composer.signOff,
+    ].map(p => wrapParagraph(glueOrphans(p, lang), LINE_WIDTH));
+    const signature = `${activeFullName || '[Your Name]'}\n${activeEmail}`;
+    return `${paragraphs.join('\n\n')}\n\n${signature}`;
+  }, [broker, t, activeFullName, activeEmail, profile.preferences.language]);
 
   if (!broker) {
     return (
@@ -50,7 +150,10 @@ export function Composer({ broker, profile }: ComposerProps) {
 
         <button
           type="button"
-          onClick={() => document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          onClick={() => {
+            onRequestDirectory?.();
+            document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
           className="md:hidden mt-8 flex flex-col items-center gap-2 text-[var(--color-brand-glow)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-primary)]/50 rounded-md px-3 py-2"
         >
           <span className="text-xs font-mono uppercase tracking-widest">{t.composer.scrollToDirectory}</span>
@@ -61,28 +164,16 @@ export function Composer({ broker, profile }: ComposerProps) {
   }
 
   const subject = t.composer.subjectLine.replace('{name}', broker.name);
-  const translatedContactName = t.brokers?.roles[broker.contactPoint.name as keyof typeof t.brokers.roles] || broker.contactPoint.name;
-  
-  const defaultBody = `${t.composer.greeting.replace('{name}', translatedContactName)}
-
-${t.composer.body1.replace('{name}', broker.name)}
-
-${t.composer.body2}
-
-${t.composer.body3}
-
-${t.composer.body4}
-
-${t.composer.body5}
-
-${t.composer.signOff}
-
-${activeFullName || '[Your Name]'}
-${activeEmail}`;
 
   const bodyToUse = customBody !== null ? customBody : defaultBody;
 
   const mailtoLink = `mailto:${broker.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyToUse)}`;
+
+  // On desktop the directory sits in a side column whose ancestor is overflow-hidden,
+  // so scrollIntoView is a no-op there; on mobile it scrolls main to the stacked directory.
+  const scrollToDirectory = () => {
+    document.getElementById('directory-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const handleCopy = async () => {
     try {
@@ -90,6 +181,34 @@ ${activeEmail}`;
       setCopied(true);
     } catch (err) {
       console.error("Clipboard access failed", err);
+    }
+    scrollToDirectory();
+  };
+
+  const canUseGmail = isAuth && isInternal && gmail.available;
+  const gmailActive = gmail.status === 'active';
+
+  const handleSendGmail = async () => {
+    if (!isAuth || !broker) return;
+    setGmailNotice(null);
+    setSending(true);
+    try {
+      const result = await gmail.send({
+        senderIdentity: profile.email,
+        recipientAddress: broker.email,
+        subjectLine: subject,
+        bodyContentPlain: bodyToUse,
+      });
+      setGmailNotice({
+        kind: 'success',
+        text: `${t.composer.gmailDispatched} ${result.message_id}`,
+      });
+    } catch (err: any) {
+      setGmailNotice({ kind: 'error', text: err?.message || t.composer.gmailFailed });
+      gmail.refresh();
+    } finally {
+      setSending(false);
+      scrollToDirectory();
     }
   };
 
@@ -102,43 +221,34 @@ ${activeEmail}`;
          </div>
       </div>
 
-      <div className="p-6 overflow-y-auto flex-1 flex flex-col">
-        {!autoFillEnabled && (
-          <div className="mb-6 p-4 border border-[var(--color-brand-element)] rounded-lg bg-[var(--color-brand-dark)] space-y-4">
-             <div className="flex items-center gap-2 text-sm font-mono text-[var(--color-brand-primary)] uppercase">
-                <UserCircle2 size={16} /> {t.composer.guestMode}
-             </div>
-             <div className="grid grid-cols-2 gap-4">
-               <div>
-                 <input 
-                   type="text" 
-                   placeholder={t.composer.firstName} 
-                   value={manualFirstName}
-                   onChange={(e) => setManualFirstName(e.target.value)}
-                   className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
-                 />
-               </div>
-               <div>
-                 <input 
-                   type="text" 
-                   placeholder={t.composer.lastName}
-                   value={manualLastName}
-                   onChange={(e) => setManualLastName(e.target.value)}
-                   className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
-                 />
-               </div>
-             </div>
-          </div>
-        )}
-
-        {autoFillEnabled && (
-          <div className="mb-6 p-4 border border-dashed border-[var(--color-brand-primary)]/50 rounded-lg bg-[var(--color-brand-primary)]/5 flex items-center gap-3">
-             <CheckCircle2 size={18} className="text-[var(--color-brand-primary)]" />
-             <div className="text-sm font-mono opacity-80">
-                <span className="text-[var(--color-brand-primary)]">{t.composer.autoFillActive}</span> {t.composer.usingIdentityModule} {activeFullName}
-             </div>
-          </div>
-        )}
+      <div className="p-6 overflow-hidden flex-1 flex flex-col min-h-0">
+        <div className="mb-6 flex flex-nowrap items-center gap-3 pb-4 border-b border-[var(--color-brand-element)]">
+           <button
+             onClick={handleCopy}
+             className="flex-2 py-2.5 rounded bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] hover:border-[var(--color-brand-primary)] text-sm font-mono uppercase tracking-widest text-[var(--color-brand-primary)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+           >
+             {copied ? t.composer.copied : t.composer.copyRaw}
+             {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
+           </button>
+           {canUseGmail && gmailActive && (
+             <button
+               onClick={handleSendGmail}
+               disabled={sending}
+               className="flex-2 py-2.5 rounded bg-[var(--color-brand-surface)] border border-[var(--color-brand-primary)] hover:border-[var(--color-brand-glow)] text-sm font-bold font-mono uppercase tracking-widest text-[var(--color-brand-glow)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+             >
+               {sending ? t.composer.gmailSending : t.composer.gmailSend}
+               {sending ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+             </button>
+           )}
+           <a
+             href={mailtoLink}
+             onClick={scrollToDirectory}
+             className="flex-3 py-2.5 rounded bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-glow)] shadow-[0_0_15px_rgba(22,137,115,0.4)] text-sm font-bold font-mono uppercase tracking-widest transition-all focus:outline-none flex items-center justify-center gap-2 cursor-pointer"
+           >
+             {t.composer.executeMailto}
+             <Send size={16} className="-mt-0.5" />
+           </a>
+        </div>
 
         <div className="space-y-4 font-mono text-sm flex flex-col flex-1 min-h-0">
           <div className="space-y-1 shrink-0">
@@ -150,33 +260,107 @@ ${activeEmail}`;
              <div className="bg-[var(--color-brand-dark)] p-2 rounded border border-[var(--color-brand-element)]">{subject}</div>
           </div>
           <div className="space-y-1 flex flex-col flex-1 min-h-0">
-             <span className="text-[var(--color-brand-primary)] opacity-60 text-xs shrink-0">{t.composer.payload}</span>
+             <div className="flex items-center justify-between shrink-0">
+               <span className="text-[var(--color-brand-primary)] opacity-60 text-xs">{t.composer.payload}</span>
+               {customBody !== null && (
+                 <button
+                   type="button"
+                   onClick={() => setCustomBody(null)}
+                   className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-brand-primary)]/60 hover:text-[var(--color-brand-glow)] transition-colors cursor-pointer px-2 py-0.5 rounded border border-transparent hover:border-[var(--color-brand-element)]"
+                 >
+                   {t.composer.resetTemplate}
+                 </button>
+               )}
+             </div>
              <textarea
                value={bodyToUse}
                onChange={(e) => setCustomBody(e.target.value)}
-               className="flex-1 w-full bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 min-h-[120px] sm:min-h-[280px] overflow-y-auto focus:border-[var(--color-brand-primary)] focus:outline-none transition-colors resize-none font-mono text-sm"
+               className="flex-1 min-h-0 w-full bg-[var(--color-brand-dark)] p-4 rounded border border-[var(--color-brand-element)] whitespace-pre-wrap leading-relaxed opacity-90 overflow-y-auto focus:border-[var(--color-brand-primary)] focus:outline-none transition-colors resize-none font-mono text-sm"
                spellCheck={false}
              />
           </div>
         </div>
+
+        {autoFillEnabled && (
+          <div className="py-3 border-t border-[var(--color-brand-element)] flex items-center gap-2 text-xs font-mono text-[var(--color-brand-primary)]">
+             <CheckCircle2 size={14} className="text-[var(--color-brand-primary)]" />
+             {t.composer.autoFillActive}
+          </div>
+        )}
       </div>
 
-      <div className="border-t border-[var(--color-brand-element)] p-4 bg-[var(--color-brand-dark)] flex items-center justify-end gap-3 z-10">
-         <button 
-           onClick={handleCopy}
-           className="px-5 py-2.5 rounded bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] hover:border-[var(--color-brand-primary)] text-sm font-mono uppercase tracking-widest text-[var(--color-brand-primary)] transition-all flex items-center gap-2 cursor-pointer"
-         >
-           {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
-           {copied ? t.composer.copied : t.composer.copyRaw}
-         </button>
-         <a 
-           href={mailtoLink}
-           className="px-6 py-2.5 rounded bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-glow)] shadow-[0_0_15px_rgba(22,137,115,0.4)] text-sm font-bold font-mono uppercase tracking-widest transition-all focus:outline-none flex items-center gap-2 cursor-pointer"
-         >
-           <Send size={16} className="-mt-0.5" />
-           {t.composer.executeMailto}
-         </a>
-      </div>
+      {canUseGmail && (
+        <div className="border-t border-[var(--color-brand-element)] px-4 py-3 bg-[var(--color-brand-dark)] flex items-center justify-between gap-4 text-xs font-mono">
+          <div className="flex items-center gap-2 text-[var(--color-brand-primary)] opacity-90 flex-1">
+            <Mail size={14} />
+            {gmailActive ? (
+              <span><span className="text-[var(--color-brand-glow)]">{t.composer.gmailLinked}</span> {profile.email}</span>
+            ) : gmail.status === 'suspended' ? (
+              <span className="text-amber-400">{t.composer.gmailSuspended}</span>
+            ) : (
+              <span>{t.composer.gmailNotLinked}</span>
+            )}
+          </div>
+          <div className="flex-1 flex items-center justify-end">
+            {gmailActive ? (
+              <button
+                onClick={gmail.disconnect}
+                disabled={gmail.busy}
+                className="px-3 py-1.5 rounded border border-[var(--color-brand-element)] hover:border-red-400 text-xs uppercase tracking-widest text-red-400 transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Unlink size={12} /> {t.composer.gmailRevoke}
+              </button>
+            ) : (
+              <button
+                onClick={gmail.connect}
+                disabled={gmail.busy}
+                className="px-3 py-1.5 rounded border border-[var(--color-brand-primary)] hover:border-[var(--color-brand-glow)] text-xs uppercase tracking-widest text-[var(--color-brand-primary)] hover:text-[var(--color-brand-glow)] transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {gmail.busy ? <Loader2 size={12} className="animate-spin" /> : <Link2 size={12} />}
+                {t.composer.gmailConnect}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {gmailNotice && (
+        <div className={`border-t px-4 py-2 text-xs font-mono flex items-start gap-2 ${gmailNotice.kind === 'success' ? 'border-[var(--color-brand-primary)]/40 bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-glow)]' : 'border-red-500/40 bg-red-500/10 text-red-300'}`}>
+          {gmailNotice.kind === 'success' ? <CheckCircle2 size={14} className="mt-0.5" /> : <Unlink size={14} className="mt-0.5" />}
+          <span className="break-all">{gmailNotice.text}</span>
+        </div>
+      )}
+
+
+      {!autoFillEnabled && (
+        <div className="border-t border-[var(--color-brand-element)] p-4 bg-[var(--color-brand-dark)] space-y-4">
+           <div className="flex items-center gap-2 text-sm font-mono text-[var(--color-brand-primary)] uppercase">
+              <UserCircle2 size={16} /> {t.composer.guestMode}
+           </div>
+           <div className="grid grid-cols-2 gap-4">
+             <div>
+               <input
+                 type="text"
+                 placeholder={t.composer.firstName}
+                 value={manualFirstName}
+                 onChange={(e) => setManualFirstName(e.target.value)}
+                 className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
+               />
+             </div>
+             <div>
+               <input
+                 type="text"
+                 placeholder={t.composer.lastName}
+                 value={manualLastName}
+                 onChange={(e) => setManualLastName(e.target.value)}
+                 className="w-full bg-[var(--color-brand-surface)] border border-[var(--color-brand-element)] rounded px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-brand-primary)] transition-colors text-[var(--color-brand-glow)] font-mono"
+               />
+             </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
+
+export const Composer = memo(ComposerImpl);

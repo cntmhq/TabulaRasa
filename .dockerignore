@@ -1,0 +1,17 @@
+node_modules
+dist
+build
+coverage
+.git
+.gitignore
+.env*
+!.env.example
+*.log
+.DS_Store
+Dockerfile
+.dockerignore
+docs
+gomailproxy
+tabularasa.dist.*.tar.gz
+README.md
+AGENTS.md

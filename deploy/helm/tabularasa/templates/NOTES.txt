@@ -1,0 +1,25 @@
+{{ include "tabularasa.fullname" . }} deployed.
+
+1. Backend env required (chart will install but the pod crashloops until set):
+
+     helm upgrade --install tabularasa ./deploy/helm/tabularasa \
+       --set backend.secrets.encryptionKey="$(openssl rand -hex 32)" \
+       --set backend.secrets.googleClientId="<client-id>" \
+       --set backend.secrets.googleClientSecret="<client-secret>"
+
+   The encryption key MUST stay stable across upgrades or all stored Gmail
+   grants become unreadable. Store it somewhere safe before your first install.
+
+2. Ingress is exposed at:
+
+     http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}/
+
+   For local k3s testing, add the host to /etc/hosts pointing at the node IP:
+
+     echo "$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}') {{ .Values.ingress.host }}" | sudo tee -a /etc/hosts
+
+3. Check rollout:
+
+     kubectl rollout status deploy/{{ include "tabularasa.fullname" . }}
+     kubectl logs -l app.kubernetes.io/instance={{ .Release.Name }} -c backend --tail=50
+     kubectl logs -l app.kubernetes.io/instance={{ .Release.Name }} -c frontend --tail=50
